@@ -49,7 +49,6 @@ router.get('/Search/Photos?', (req, res, next) => {
 
     Photo.paginate(query , options)
         .then((result) => {
-            console.log(result);
             res.render('photos', {result: result.docs})
         })
         .catch((error) => {
@@ -64,7 +63,7 @@ router.post('/Update/:_id?/Photos',(req, res, next) => {
 
     Photo.update({_id: req.params._id}, query)
         .then((photo) => {
-            res.render('photos', { result: photo});
+            res.render('photos', { result: JSON.stringify(photo)});
         })
         .catch((error) => {
             res.render('error', { message: error });
@@ -76,8 +75,17 @@ router.post('/Load/Photos', (req, res, next) => {
 
 });
 
-router.delete('/', (req, res, next) => {
-    res.send('respond with a resource');
+router.delete('/Remove/:_id?/Photos', (req, res, next) => {
+
+    Photo.remove({ _id: req.params})
+        .then((result) => {
+            res.render('photos', { result: result});
+        })
+        .catch((error) => {
+            console.log(error.message);
+            res.render('error', { message: error.message})
+        })
+
 });
 
 

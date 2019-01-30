@@ -4,10 +4,10 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-var index = require('./routes/index');
-var api = require('./routes/api_v1');
+const index = require('./routes/index');
+const api = require('./routes/api_v1');
 
-var app = express();
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
