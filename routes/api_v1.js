@@ -89,6 +89,8 @@ router.delete('/Remove/:_id?/Photos', (req, res, next) => {
 });
 
 
+
+
 function buildQuery(req) {
 
     let query = {};
