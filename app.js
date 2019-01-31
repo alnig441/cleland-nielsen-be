@@ -3,11 +3,18 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const mongoose = require('mongoose');
 
 const index = require('./routes/index');
-const api = require('./routes/api_v1');
+const api_latest = require('./routes/api_v1');
+const userAuth = require('./routes/authenticate');
 
 const app = express();
+
+mongoose.connect(process.env.MYDB, { useNewUrlParser: true });
+const db = mongoose.connection;
+db.on('open', () => console.log('datebase open!'));
+db.on('error', (error) => console.log('db error: ', error));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -19,8 +26,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
 app.use('/', index);
-app.use(`/${process.env.LATEST_API_VERSION}`, api); //latest api
+app.use('/',userAuth);
+app.use(`/${process.env.LATEST_API_VERSION}`, api_latest); //latest api
 app.use(/\/api/i, (req, res) => {
   let test = req.originalUrl.match(/[v][0-9]?[0-9]/i);
 

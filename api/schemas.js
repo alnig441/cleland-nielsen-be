@@ -24,6 +24,14 @@ var schemas = {
                 fileName: { type: String, required: true },
                 thumbnail: Buffer
             }
+        }),
+
+    userSchema:
+        new mongoose.Schema({
+            userId: { type: String, required: true, unique: true },
+            password: { type: String, required: true },
+            type: String,
+            group: [String]
         })
 }
 

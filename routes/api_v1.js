@@ -2,30 +2,20 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const paginate = require('mongoose-paginate');
+const userAuth = require('./authenticate');
 
+const userSchema = require('../api/schemas').userSchema;
 const photoSchema = require('../api/schemas').photoSchema;
 photoSchema.plugin(paginate);
 
 const Photo = mongoose.model('Photo', photoSchema);
+const User = mongoose.model('User', userSchema);
 
-mongoose.connect(process.env.MYDB, {useNewUrlParser: true , useCreateIndex: true});
-let db = mongoose.connection;
-
-db.on('error', (error) => {
-    console.log('connection error: ', error)
-});
-db.on('open', () => {
-    console.log('open!')
-});
-db.on('connected', () => {
-    console.log('connected')
-});
-db.on('disconnected', () => {
-    console.log('disconnected')
-});
-db.on('reconnect', () => {
-    console.log('reconnecting!')
-})
+var test_photo = {
+    image: {
+        fileName: 'test.jpg'
+    }
+};
 
 router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 
@@ -41,7 +31,11 @@ router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 
 })
 
-router.get('/Search/Photos?', (req, res, next) => {
+
+
+router.get('/Search/Photos?', userAuth, (req, res, next) => {
+
+    console.log('auth header: ', req.headers.authorization);
 
     let query = buildQuery(req.query);
 
@@ -73,7 +67,20 @@ router.post('/Update/:_id?/Photos',(req, res, next) => {
 
 router.post('/Load/Photos', (req, res, next) => {
 
+    let photo = new Photo(test_photo);
+    photo.set({ created: new Date });
+
+    photo.save()
+        .then((result) => {
+            res.render('photos', { result: JSON.stringify(result) })
+        })
+        .catch((error) => {
+            res.render('error', { message: error })
+        })
+
 });
+
+
 
 router.delete('/Remove/:_id?/Photos', (req, res, next) => {
 
