@@ -27,8 +27,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-app.use('/', index);
 app.use('/',userAuth);
+app.use('/', index);
 app.use(`/${process.env.LATEST_API_VERSION}`, api_latest); //latest api
 app.use(/\/api/i, (req, res) => {
   let test = req.originalUrl.match(/[v][0-9]?[0-9]/i);

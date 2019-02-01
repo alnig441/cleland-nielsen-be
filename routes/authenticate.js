@@ -7,7 +7,7 @@ const userSchema = require('../api/schemas').userSchema;
 
 const User = mongoose.model('User', userSchema);
 
-router.get(/\/[a-z]/i, (req, res, next) => {
+router.get(/^\//i, (req, res, next) => {
 
     let reset_header = false;
     let credentials = auth(req);
@@ -25,7 +25,7 @@ router.get(/\/[a-z]/i, (req, res, next) => {
             .catch((error) => {
                 reset_header = true;
                 res.statusCode = 401;
-                res.render('error', {message: 'unauthorized - glem det'});
+                res.render('error', {message: `${ credentials.name } unauthorized - glem det`});
             })
     }
 })

@@ -23,7 +23,7 @@ router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 
     Photo.paginate(query)
         .then((image) => {
-            res.render('photos', {result: image.docs})
+            res.render('resutls', {result: image.docs})
         })
         .catch((error) => {
             res.render('error', { message: error})
@@ -35,18 +35,18 @@ router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 
 router.get('/Search/Photos?', userAuth, (req, res, next) => {
 
-    console.log('auth header: ', req.headers.authorization);
-
     let query = buildQuery(req.query);
 
     let options = { page: parseInt(req.query.page) , limit: parseInt(process.env.LIMIT) }
 
     Photo.paginate(query , options)
         .then((result) => {
-            res.render('photos', {result: result.docs})
+            console.log(result);
+            // res.render('resutls', {result: result.docs})
+            res.status(200).send(result);
         })
         .catch((error) => {
-            res.render('photos', {result: error})
+            res.render('resutls', {result: error})
         })
 
 });
@@ -57,7 +57,7 @@ router.post('/Update/:_id?/Photos',(req, res, next) => {
 
     Photo.update({_id: req.params._id}, query)
         .then((photo) => {
-            res.render('photos', { result: JSON.stringify(photo)});
+            res.render('resutls', { result: JSON.stringify(photo)});
         })
         .catch((error) => {
             res.render('error', { message: error });
@@ -72,7 +72,7 @@ router.post('/Load/Photos', (req, res, next) => {
 
     photo.save()
         .then((result) => {
-            res.render('photos', { result: JSON.stringify(result) })
+            res.render('resutls', { result: JSON.stringify(result) })
         })
         .catch((error) => {
             res.render('error', { message: error })
@@ -86,7 +86,7 @@ router.delete('/Remove/:_id?/Photos', (req, res, next) => {
 
     Photo.remove({ _id: req.params})
         .then((result) => {
-            res.render('photos', { result: result});
+            res.render('resutls', { result: result});
         })
         .catch((error) => {
             console.log(error.message);
