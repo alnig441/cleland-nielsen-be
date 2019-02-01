@@ -1,5 +1,44 @@
 extends layout
 
 block content
-    p Results from API
-    result= result
+    main#results
+        h1= endpoint + ' results'
+        - var result= docs;
+
+        div.results
+            span.level0(style='display: block')= '<'+ endpoint +'ModelResults>'
+            - if (result.total > 1)
+                each item, val in result.docs
+                    span.level1(style='display: block')= '<'+ endpoint+'Model>'
+                         each val2,key2 in item._doc
+                            - if (val2 == '[object Object]' || val2 == '[]')
+                                span.level2(style='display: block')= '<'+ key2 +'>'
+                                    each val3, key3 in item._doc[key2]
+                                        - if (val3.length > 0)
+                                            span.level3(style='display: block')= '<'+key3+'>'+val3+'</'+key3+'>'
+                                span.level2= '</'+ key2 +'>'
+                            - else
+                                span.level2(style='display: block')= '<'+ key2 +'>'+ val2 +'</'+ key2 +'>'
+
+                    span.level1(style='display: block')= '</' + endpoint + 'Model>'
+                span.level1(style='display: block')= '<total>'+ result.total + '</total>'
+                - if (docs.limit.toString() != 'NaN')
+                    span.level1(style='display: block')= '<limit>'+ result.limit + '</limit>'
+                - if (docs.page.toString() != 'NaN')
+                    span.level1(style='display: block')= '<page>'+ result.page + '</page>'
+                - if (docs.page.toString() != 'NaN')
+                    span.level1(style='display: block')= '<pages>'+ result.pages + '</pages>'
+
+            - else
+                span.level1(style='display: block')= '<' + endpoint + 'Model>'
+                     each val,key in result[0]._doc
+                         - if (val == '[object Object]' || val == '[]')
+                            span.level2(style='display: block')= '<'+key+'>'
+                                each val2, key2 in result[0]._doc[key]
+                                    - if (val2.length > 0)
+                                        span.level3(style='display: block')= '<'+key2+'>'+val2+'</'+key2+'>'
+                            span.level2(style='display: block')= '</'+key+'>'
+                         - else
+                            span.level2(style='display: block')= '<'+ key +'>'+ val +'</'+ key +'>'
+                span(style='display: block')= '</'+ endpoint+'Model>'
+            span.level0(style='display: block')= '</'+ endpoint +'ModelResults>'

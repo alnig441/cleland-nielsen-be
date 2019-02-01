@@ -23,7 +23,7 @@ router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 
     Photo.paginate(query)
         .then((image) => {
-            res.render('resutls', {result: image.docs})
+            res.render('results', {docs: image.docs, endpoint: 'photos'})
         })
         .catch((error) => {
             res.render('error', { message: error})
@@ -41,12 +41,10 @@ router.get('/Search/Photos?', userAuth, (req, res, next) => {
 
     Photo.paginate(query , options)
         .then((result) => {
-            console.log(result);
-            // res.render('resutls', {result: result.docs})
-            res.status(200).send(result);
+            res.render('results', {docs: result, endpoint: 'photos'})
         })
         .catch((error) => {
-            res.render('resutls', {result: error})
+            res.render('results', {result: error})
         })
 
 });
@@ -57,7 +55,7 @@ router.post('/Update/:_id?/Photos',(req, res, next) => {
 
     Photo.update({_id: req.params._id}, query)
         .then((photo) => {
-            res.render('resutls', { result: JSON.stringify(photo)});
+            res.render('results', { docs: JSON.stringify(photo)});
         })
         .catch((error) => {
             res.render('error', { message: error });
@@ -72,7 +70,7 @@ router.post('/Load/Photos', (req, res, next) => {
 
     photo.save()
         .then((result) => {
-            res.render('resutls', { result: JSON.stringify(result) })
+            res.render('results', { docs: JSON.stringify(result) })
         })
         .catch((error) => {
             res.render('error', { message: error })
@@ -86,7 +84,7 @@ router.delete('/Remove/:_id?/Photos', (req, res, next) => {
 
     Photo.remove({ _id: req.params})
         .then((result) => {
-            res.render('resutls', { result: result});
+            res.render('results', { docs: result});
         })
         .catch((error) => {
             console.log(error.message);
