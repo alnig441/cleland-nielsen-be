@@ -31,8 +31,6 @@ router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 
 })
 
-
-
 router.get('/Search/Photos?', userAuth, (req, res, next) => {
 
     let query = buildQuery(req.query);
@@ -49,12 +47,16 @@ router.get('/Search/Photos?', userAuth, (req, res, next) => {
 
 });
 
-router.post('/Update/:_id?/Photos',(req, res, next) => {
+router.post('/UpdateById/:_id?/Photos',(req, res, next) => {
 
-    let query = buildQuery(req.body);
+    /* FIX QUERY BUILDER TO CONFORM TO {'field':'value'} OR {'object.field': 'value'} SYNTAX */
 
-    Photo.update({_id: req.params._id}, query)
+    // let query = buildQuery(req.body);
+
+
+    Photo.findOneAndUpdate({_id: req.params._id}, query)
         .then((photo) => {
+            console.log(photo);
             res.render('results', { docs: JSON.stringify(photo)});
         })
         .catch((error) => {
@@ -120,7 +122,7 @@ function buildQuery(req) {
                 case 'state':
                     !query.location ? query.location = { [element]: req[element] } : query.date[element] = req[element];
                     break;
-                case 'county':
+                case 'country':
                     !query.location ? query.location = { [element]: req[element] } : query.date[element] = req[element];
                     break;
                 case 'venue':

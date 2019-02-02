@@ -27,17 +27,19 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-app.use('/',userAuth);
+app.all('*', userAuth);
 app.use('/', index);
 app.use(`/${process.env.LATEST_API_VERSION}`, api_latest); //latest api
-app.use(/\/api/i, (req, res) => {
-  let test = req.originalUrl.match(/[v][0-9]?[0-9]/i);
 
-  let uri = test ?
+//catch all '/api' and redirect to appropriate version
+app.use(/\/api/i, (req, res) => {
+  let requested_version = req.originalUrl.match(/[v][0-9]?[0-9]/i);
+
+  let uri = requested_version ?
       req.originalUrl.replace(/\/api/i, '') :
       req.originalUrl.replace(/\/api/i, '/v1');
 
-  res.redirect(301, uri);
+  res.redirect(307, uri);
 })
 
 // catch 404 and forward to error handler
