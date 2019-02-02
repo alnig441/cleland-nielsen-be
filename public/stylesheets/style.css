@@ -1,0 +1,42 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+#results h1 {
+  color: darkslategrey;
+  text-transform: uppercase;
+}
+
+#results p {
+  display:inline;
+  color: blueviolet;
+}
+
+#results span {
+  margin-left: 30px;
+  display:block;
+  color: cornflowerblue;
+}
+
+#results .level0 {
+  margin-left: 0px;
+}
+
+#results .results {
+  margin: 20px;
+}
+
+#results .no-margin {
+  margin: 0;
+  display:inline;
+}
