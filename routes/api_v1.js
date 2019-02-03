@@ -73,14 +73,14 @@ router.post('/UpdateById/:_id?/Photos',(req, res, next) => {
             })
     }
 
-    function* stepThrough(object) {
+    function* stepThrough(object_in) {
         let i = 0;
-        let arr = Object.keys(object);
-       while(i <= arr.length -1) {
+        let keys = Object.keys(object_in);
+       while(i <= keys.length -1) {
            i++;
-           let obj = {};
-           obj[arr[i - 1]] = object[arr[i - 1]];
-           yield parseQuery(obj);
+           let object_out = {};
+           object_out[keys[i - 1]] = object_in[keys[i - 1]];
+           yield parseQuery(object_out);
        }
        return
     }
