@@ -43,22 +43,47 @@ router.get('/Search/Photos?', userAuth, (req, res, next) => {
 
 router.post('/UpdateById/:_id?/Photos',(req, res, next) => {
 
-    /* FIX QUERY BUILDER TO CONFORM TO {'field':'value'} OR {'object.field': 'value'} SYNTAX */
-
     let incoming = req.body ? req.body : req.query;
 
+    let goTo = stepThrough(incoming);
+
+    let done = false;
+
     let query = parseQuery(incoming);
-    console.log(query, incoming);
 
-    Photo.findOneAndUpdate({_id: req.params._id}, query)
-        .then((photo) => {
-            console.log(photo);
-            res.render('results', { docs: photo, endpoint: 'photos'});
-        })
-        .catch((error) => {
-            res.render('error', { message: error });
-        })
+    parseIncoming();
 
+    function parseIncoming() {
+        let result = goTo.next();
+        done = result.done;
+        updatePhoto(result.value);
+    }
+
+    function updatePhoto(field) {
+        Photo.findOneAndUpdate({_id: req.params._id}, field)
+            .then((photo) => {
+                if (!done) {
+                    parseIncoming();
+                } else {
+                    res.render('results', { docs: photo, endpoint: 'photos'});
+                }
+            })
+            .catch((error) => {
+                res.render('error', { message: error });
+            })
+    }
+
+    function* stepThrough(object) {
+        let i = 0;
+        let arr = Object.keys(object);
+       while(i <= arr.length -1) {
+           i++;
+           let obj = {};
+           obj[arr[i - 1]] = object[arr[i - 1]];
+           yield parseQuery(obj);
+       }
+       return
+    }
 })
 
 router.post('/Load/Photos', (req, res, next) => {
