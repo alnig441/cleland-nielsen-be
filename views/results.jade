@@ -7,14 +7,14 @@ block content
 
         div.results
             span.level0= '<'+ endpoint +'ModelResults>'
-            - if (result.total > 1)
+            - if (result.docs)
                 each item, val in result.docs
                     span.level1= '<'+ endpoint+'Model>'
                          each val2,key2 in item._doc
                             - if (val2 == '[object Object]' || val2 == '[]')
                                 span.level2= '<'+ key2 +'>'
                                     each val3, key3 in item._doc[key2]
-                                        - if (val3.length > 0)
+                                        - if (val3 && val3.length != 0)
                                             span.level3= '<'+key3+'>'
                                                 p= val3
                                                 span.no-margin= '</'+key3+'>'
@@ -41,20 +41,36 @@ block content
                         p= result.pages
                         span= '</pages>'
 
-            - else
-                span.level1= '<' + endpoint + 'Model>'
-                     each val,key in result[0]._doc
-                         - if (val == '[object Object]' || val == '[]')
-                            span.level2= '<'+key+'>'
-                                each val2, key2 in result[0]._doc[key]
-                                    - if (val2.length > 0)
-                                        span.level3= '<'+key2+'>'
-                                            p= val2
-                                            span.no-margin= '</'+key2+'>'
-                            span.level2= '</'+key+'>'
-                         - else
-                            span.level2= '<'+ key +'>'
-                                p= val
-                                span.no-margin= '</'+ key +'>'
-                span= '</'+ endpoint+'Model>'
+             - else
+                 span.level1= '<' + endpoint + 'Model>'
+                    - if (result[0])
+                      each val,key in result[0]._doc
+                          - if (val == '[object Object]' || val == '[]')
+                             span.level2= '<'+key+'>'
+                                 each val2, key2 in result[0]._doc[key]
+                                     - if (val2 && val2.length != 0)
+                                         span.level3= '<'+key2+'>'
+                                             p= val2
+                                             span.no-margin= '</'+key2+'>'
+                             span.level2= '</'+key+'>'
+                          - else
+                             span.level2= '<'+ key +'>'
+                                 p= val
+                                 span.no-margin= '</'+ key +'>'
+
+                    - else
+                        each val,key in result._doc
+                            - if (val == '[object Object]' || val == '[]')
+                                span.level2= '<' + key + '>'
+                                    each val2,key2 in result._doc[key]
+                                        - if (val2 && val2.length != 0)
+                                            span.level3= '<'+ key2 +'>'
+                                                p= val2
+                                                span.no-margin= '</'+ key2 + '>'
+                            - else
+                                span.level2= '<' + key + '>'
+                                    p= val
+                                    span.no-margin= '</' + key + '>'
+
+                 span= '</'+ endpoint+'Model>'
             span.level0= '</'+ endpoint +'ModelResults>'
