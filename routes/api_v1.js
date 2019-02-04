@@ -47,22 +47,17 @@ router.post('/UpdateById/:_id?/Photos',(req, res, next) => {
 
     let goTo = stepThrough(incoming);
 
-    let done = false;
-
-    let query = parseQuery(incoming);
-
     parseIncoming();
 
     function parseIncoming() {
         let result = goTo.next();
-        done = result.done;
-        updatePhoto(result.value);
+        updatePhoto(result);
     }
 
     function updatePhoto(field) {
-        Photo.findOneAndUpdate({_id: req.params._id}, field)
+        Photo.findOneAndUpdate({_id: req.params._id}, field.value)
             .then((photo) => {
-                if (!done) {
+                if (!field.done) {
                     parseIncoming();
                 } else {
                     res.render('results', { docs: photo, endpoint: 'photos'});
@@ -76,12 +71,14 @@ router.post('/UpdateById/:_id?/Photos',(req, res, next) => {
     function* stepThrough(object_in) {
         let i = 0;
         let keys = Object.keys(object_in);
+
        while(i <= keys.length -1) {
            i++;
            let object_out = {};
            object_out[keys[i - 1]] = object_in[keys[i - 1]];
            yield parseQuery(object_out);
        }
+       
        return
     }
 })
