@@ -17,7 +17,6 @@ router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 
     Photo.paginate(query)
         .then((image) => {
-            console.log(image);
             res.render('results', {docs: image.docs, endpoint: 'photos'})
         })
         .catch((error) => {
@@ -32,7 +31,6 @@ router.get('/Search/Photos?', userAuth, (req, res, next) => {
 
     Photo.paginate({} , options)
         .then((result) => {
-            console.log(result.docs[0]);
             res.render('results', {docs: result, endpoint: 'photos'})
         })
         .catch((error) => {
@@ -78,7 +76,7 @@ router.post('/UpdateById/:_id?/Photos',(req, res, next) => {
            object_out[keys[i - 1]] = object_in[keys[i - 1]];
            yield parseQuery(object_out);
        }
-       
+
        return
     }
 })
@@ -109,7 +107,6 @@ router.delete('/Remove/:_id?/Photos', (req, res, next) => {
             res.render('results', { docs: result});
         })
         .catch((error) => {
-            console.log(error.message);
             res.render('error', { message: error.message})
         })
 
@@ -135,7 +132,7 @@ function parseQuery(request) {
                 case 'year':
                     return  query = { "date.year" : parseInt(request[key]) };
                 case 'names':
-                    return  query = { "meta.names" : request[key] };
+                    return  query = { $push: {"meta.names" : request[key] }};
                 case 'venue':
                     return  query = { "meta.venue" : request[key] };
                 case 'occasion':
