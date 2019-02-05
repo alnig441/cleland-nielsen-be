@@ -5,9 +5,12 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
 
-const index = require('./routes/index');
-const api_latest = require('./routes/api_v1');
 const userAuth = require('./routes/authenticate');
+const index = require('./routes/index');
+const v1_get = require('./routes/api/v1_get');
+const v1_delete = require('./routes/api/v1_delete');
+const v1_put = require('./routes/api/v1_put');
+const v1_post = require('./routes/api/v1_post');
 
 const app = express();
 
@@ -26,10 +29,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
 app.all('*', userAuth);
 app.use('/', index);
-app.use(`/${process.env.LATEST_API_VERSION}`, api_latest); //latest api
+app.use(`/${process.env.LATEST_API_VERSION}`, [v1_get, v1_put, v1_post, v1_delete]); //latest api
 
 //catch all '/api' and redirect to appropriate version
 app.use(/\/api/i, (req, res) => {
