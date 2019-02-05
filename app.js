@@ -11,6 +11,7 @@ const v1_get = require('./routes/api/v1_get');
 const v1_delete = require('./routes/api/v1_delete');
 const v1_put = require('./routes/api/v1_put');
 const v1_post = require('./routes/api/v1_post');
+const loadDB = require('./app_modules/batch_load');
 
 const app = express();
 
@@ -18,6 +19,11 @@ mongoose.connect(process.env.MYDB, { useNewUrlParser: true });
 const db = mongoose.connection;
 db.on('open', () => console.log('datebase open!'));
 db.on('error', (error) => console.log('db error: ', error));
+
+if (process.env.BATCH_FILE) {
+  console.log('batch loading');
+  loadDB(`public/${process.env.BATCH_FILE}`);
+}
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

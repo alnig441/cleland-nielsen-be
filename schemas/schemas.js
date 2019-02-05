@@ -4,7 +4,7 @@ var schemas = {
 
     photoSchema :
         new mongoose.Schema({
-            created: { type: Date , required: true ,  unique : true },
+            created: { type: Date , required: true, unique: true },
             date: {
                 day: Number,
                 month: Number,
@@ -18,7 +18,8 @@ var schemas = {
             meta: {
                 venue: String,
                 occasion: String,
-                names: [String]
+                names: [String],
+                event: [String],
             },
             image: {
                 fileName: { type: String, required: true },

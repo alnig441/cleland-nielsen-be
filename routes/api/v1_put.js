@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const parser = require('./parser');
+const fs = require('fs');
+const readline = require('readline');
 
 const userSchema = require('../../schemas/schemas').userSchema;
 const photoSchema = require('../../schemas/schemas').photoSchema;
@@ -25,10 +27,5 @@ router.put('/Add/Photos', (req, res, next) => {
         })
 
 });
-
-router.put('/BatchLoad/Photos', (req, res, next) => {
-    console.log('batch loading...');
-    res.render('results', {docs: [], endpoint: 'photos'})
-})
 
 module.exports = router;
