@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const parser = require('./parser');
+const parser = require('../../app_modules/parser');
 const fs = require('fs');
 const readline = require('readline');
 

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const paginate = require('mongoose-paginate');
-const parser = require('./parser');
+const parser = require('../../app_modules/parser');
 
 const userSchema = require('../../schemas/schemas').userSchema;
 const photoSchema = require('../../schemas/schemas').photoSchema;
