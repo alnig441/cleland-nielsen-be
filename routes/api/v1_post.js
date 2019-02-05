@@ -45,7 +45,7 @@ router.post('/UpdateById/:_id?/Photos',(req, res, next) => {
             i++;
             let object_out = {};
             object_out[keys[i - 1]] = object_in[keys[i - 1]];
-            yield parser.parseQuery(object_out);
+            yield parser.parseUpdateQuery(object_out);
         }
 
         return

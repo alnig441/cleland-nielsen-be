@@ -25,9 +25,15 @@ router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 
 router.get('/Search/Photos?', (req, res, next) => {
 
-    let options = { page: parseInt(req.query.page) , limit: parseInt(process.env.LIMIT) }
+    let options = { page: parseInt(req.query.page) , limit: parseInt(process.env.LIMIT) };
+    let doAnd;
 
-    let query = parser.parseQuery(req.query);
+    //detect if album view year/month
+    if (req.query.hasOwnProperty('year') && req.query.hasOwnProperty('month') && req.query.hasOwnProperty('page')) {
+        doAnd = true;
+    }
+
+    let query = parser.parseSearchQuery(req.query, doAnd);
 
     Photo.paginate( query , options)
         .then((result) => {
@@ -37,7 +43,9 @@ router.get('/Search/Photos?', (req, res, next) => {
             res.render('results', {result: error})
         })
 
-});
+})
+
+router.get('/BuildView/Photos')
 
 
 module.exports = router;
