@@ -14,9 +14,8 @@ const User = mongoose.model('User', userSchema);
 router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 
     Photo.paginate(req.params)
-        .then((image) => {
-            console.log(image)
-            res.render('results', {docs: image, endpoint: 'photos'})
+        .then((result) => {
+            res.render('results', {docs: result, endpoint: 'photos'})
         })
         .catch((error) => {
             res.render('error', { message: error})
@@ -38,7 +37,6 @@ router.get('/Search/Photos?', (req, res, next) => {
 
     Photo.paginate( query , options)
         .then((result) => {
-            console.log(result)
             res.render('results', {docs: result, endpoint: 'photos'})
         })
         .catch((error) => {
