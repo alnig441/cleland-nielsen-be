@@ -5,98 +5,26 @@ block content
         h1= endpoint + ' results'
         - var result= docs;
 
-        div.results
-            - if (result.length == 0)
-                p= 'no documents found!'
-            - else
+        - if (result.total)
+            div.results
                 span.level0= '<'+ endpoint +'ModelResults>'
-                - if (result.docs)
-                    each item, val in result.docs
-                        span.level1= '<'+ endpoint+'Model>'
-                             each val2,key2 in item._doc
-                                - if (val2 == '[object Object]' || val2 == '[]')
-                                    span.level2= '<'+ key2 +'>'
-                                        each val3, key3 in item._doc[key2]
-                                            - if (val3 == '[object Object]' || val3 == '[]')
-                                                span.level3= '<'+ key3 + '>'
-                                                    each val4, key4 in item._doc[key2][key3]
-                                                        if (val4 && val4.length != 0)
-                                                            span.level4= '<'+ key4 +'>'
-                                                                p= val4
-                                                                span.no-margin= '</' + key4 + '>'
-                                                span.level3= '</' + key3 + '>'
-                                            - else if (val3 && val3.length != 0)
-                                                span.level3= '<'+key3+'>'
-                                                    p= val3
-                                                    span.no-margin= '</'+key3+'>'
-                                    span.level2= '</'+ key2 +'>'
-                                - else
-                                    span.level2(style='display: block')= '<'+ key2 +'>'
-                                        p= val2
-                                        span.no-margin= '</' + key2 + '>'
-
-                        span.level1(style='display: block')= '</' + endpoint + 'Model>'
+                    include ./partials/photo.jade
+                - if (docs.total && docs.total.toString() != 'NaN')
                     span.level1= '<total>'
-                        p= result.total
+                        p= docs.total
                         span.no-margin='</total>'
-                    - if (docs.limit.toString() != 'NaN')
-                        span.level1= '<limit>'
-                            p= result.limit
-                            span.no-margin= '</limit>'
-                    - if (docs.page.toString() != 'NaN')
-                        span.level1= '<page>'
-                            p= result.page
-                            span.no-margin= '</page>'
-                    - if (docs.page.toString() != 'NaN')
-                        span.level1= '<pages>'
-                            p= result.pages
-                            span= '</pages>'
-
-                 - else
-                     span.level1= '<' + endpoint + 'Model>'
-                        - if (result[0])
-                          each val,key in result[0]._doc
-                              - if (val == '[object Object]' || val == '[]')
-                                 span.level2= '<'+key+'>'
-                                     each val2, key2 in result[0]._doc[key]
-                                         - if (val2 == '[object Object]' || val2 == '[]')
-                                            span.level3= '<' + key2 + '>'
-                                                each val3,key3 in result[0]._doc[key][key2]
-                                                    span.level4= '<' + key3 + '>'
-                                                        p= val3
-                                                        span.no-margin= '</' + key3 + '>'
-                                             span.level3= '</'+ key2 +'>'
-                                         - else if (val2 && val2.length != 0)
-                                             span.level3= '<'+key2+'>'
-                                                 p= val2
-                                                 span.no-margin= '</'+key2+'>'
-                                 span.level2= '</'+key+'>'
-                              - else
-                                 span.level2= '<'+ key +'>'
-                                     p= val
-                                     span.no-margin= '</'+ key +'>'
-
-                        - else if (result._doc)
-                            each val,key in result._doc
-                                - if (val == '[object Object]' || val == '[]')
-                                    span.level2= '<' + key + '>'
-                                        each val2,key2 in result._doc[key]
-                                            - if (val2 == '[object Object]' || val2 == '[]')
-                                                span.level3= '<' + key2 + '>'
-                                                    each val3,key3 in result._doc[key][key2]
-                                                        span.level4= '<' + key3 + '>'
-                                                            p= val3
-                                                            span.no-margin= '</' + key3 + '>'
-                                                span.level3= '</' + key2 +'>'
-                                            - else if (val2 && val2.length != 0)
-                                                span.level3= '<'+ key2 +'>'
-                                                    p= val2
-                                                    span.no-margin= '</'+ key2 + '>'
-                                    span.level2= '</' + key + '>'
-                                - else
-                                    span.level2= '<' + key + '>'
-                                        p= val
-                                        span.no-margin= '</' + key + '>'
-
-                     span= '</'+ endpoint+'Model>'
+                - if (docs.limit && docs.limit.toString() != 'NaN')
+                    span.level1= '<limit>'
+                        p= docs.limit
+                        span.no-margin= '</limit>'
+                - if (docs.page && docs.page.toString() != 'NaN')
+                    span.level1= '<page>'
+                        p= docs.page
+                        span.no-margin= '</page>'
+                - if (docs.pages && docs.pages.toString() != 'NaN')
+                    span.level1= '<pages>'
+                        p= docs.pages
+                        span.no-margin= '</pages>'
                 span.level0= '</'+ endpoint +'ModelResults>'
+        - else
+            span= 'no results!'

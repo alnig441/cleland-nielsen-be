@@ -1,0 +1,23 @@
+- var result= docs.hasOwnProperty('_doc') ? [docs]: docs.docs
+
+each document,index in result
+    span.level1= '<'+ endpoint + 'Model>'
+       each fieldVal,field in document._doc
+           - if (typeof fieldVal == 'object' && field != '_id' && !Array.isArray(fieldVal) && field != 'created')
+               span.level2= '<' + field + '>'
+                   each fieldVal2, field2 in fieldVal
+                        span.level3= '<'+ field2 + '>'
+                            - if (typeof fieldVal2 == 'object' && !Array.isArray(fieldVal2))
+                                each fieldVal3,field3 in fieldVal2
+                                    span.level4= '<'+ field3 + '>'
+                                        p= fieldVal3
+                                        span.no-margin= '<'+ field3 +'>'
+                            - else
+                                p= fieldVal2
+                                span.no-margin= '</'+ field2 + '>'
+                   span.level2= '</' + field + '>'
+           - else
+               span.level2= '</' + field + '>'
+                    p=fieldVal
+                    span.no-margin= '</'+ field +'>'
+    span.level1= '</'+ endpoint + 'Model>'

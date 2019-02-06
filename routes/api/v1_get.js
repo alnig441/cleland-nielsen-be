@@ -15,7 +15,8 @@ router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 
     Photo.paginate(req.params)
         .then((image) => {
-            res.render('results', {docs: image.docs, endpoint: 'photos'})
+            console.log(image)
+            res.render('results', {docs: image, endpoint: 'photos'})
         })
         .catch((error) => {
             res.render('error', { message: error})
@@ -37,6 +38,7 @@ router.get('/Search/Photos?', (req, res, next) => {
 
     Photo.paginate( query , options)
         .then((result) => {
+            console.log(result)
             res.render('results', {docs: result, endpoint: 'photos'})
         })
         .catch((error) => {
