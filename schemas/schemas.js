@@ -19,7 +19,10 @@ var schemas = {
                 venue: String,
                 occasion: String,
                 names: [String],
-                event: [String],
+                event: {
+                    en: String,
+                    da: String
+                },
             },
             image: {
                 fileName: { type: String, required: true },

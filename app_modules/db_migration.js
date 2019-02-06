@@ -43,7 +43,8 @@ const batchLoad = {
                 'meta.names': object.names,
                 'meta.venue': object.venue,
                 'meta.occasion': array[6],
-                'meta.event': [array[12], array[13]],
+                'meta.event.da': array[12],
+                'meta.event.en': array[13],
                 'image.fileName': array[11]
             });
 
