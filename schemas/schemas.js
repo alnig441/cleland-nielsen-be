@@ -19,6 +19,7 @@ var schemas = {
                 venue: String,
                 occasion: String,
                 names: [String],
+                keywords: [String],
                 event: {
                     en: String,
                     da: String
