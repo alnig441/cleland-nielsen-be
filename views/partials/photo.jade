@@ -3,22 +3,22 @@
 each document,index in result
     span.level1= '<'+ endpoint + 'Model>'
        each fieldVal,field in document._doc
-           - if (typeof fieldVal == 'object' && field != '_id' && !Array.isArray(fieldVal) && field != 'created')
-               span.level2= '<' + field + '>'
-                   each fieldVal2, field2 in fieldVal
+           span.level2= '<' + field + '>'
+                - if (typeof fieldVal == 'object' && field != '_id' && !Array.isArray(fieldVal) && field != 'created')
+                    each fieldVal2, field2 in fieldVal
                         span.level3= '<'+ field2 + '>'
                             - if (typeof fieldVal2 == 'object' && !Array.isArray(fieldVal2))
-                                each fieldVal3,field3 in fieldVal2
+                                 each fieldVal3,field3 in fieldVal2
                                     span.level4= '<'+ field3 + '>'
-                                        p= fieldVal3
-                                        span.no-margin= '<'+ field3 +'>'
-                                span.no-margin='</'+ field2 +'>'
+                                        - if (typeof fieldVal2 == 'object' && !Array.isArray(fieldVal2))
+                                             p= fieldVal3
+                                        - else
+                                         p= fieldVal3
+                                        span.closing-tag= '</'+ field3 +'>'
                             - else
-                                p= fieldVal2
-                                span.no-margin= '</'+ field2 + '>'
-               span.level2= '</' + field + '>'
-           - else
-               span.level2= '</' + field + '>'
-                    p=fieldVal
-                    span.no-margin= '</'+ field +'>'
+                             p= fieldVal2
+                            span.closing-tag= '</'+ field2 + '>'
+                - else
+                 p= fieldVal
+                span.closing-tag= '</' + field + '>'
     span.level1= '</'+ endpoint + 'Model>'

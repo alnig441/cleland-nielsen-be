@@ -22,21 +22,34 @@ a {
   color: blueviolet;
 }
 
-#results span {
-  margin-left: 30px;
-  display:block;
+#results span{
   color: cornflowerblue;
 }
 
+/*#results span {*/
+  /*margin-left: 30px;*/
+  /*display:block;*/
+  /*color: cornflowerblue;*/
+/*}*/
+
 #results .level0 {
   margin-left: 0px;
+}
+
+#results .level1,
+#results .level2,
+#results .level3,
+#results .level4
+{
+  margin-left: 30px;
+  display: block;
 }
 
 #results .results {
   margin: 20px;
 }
 
-#results .no-margin {
+#results .closing-tag {
   margin: 0;
   display:inline;
 }
