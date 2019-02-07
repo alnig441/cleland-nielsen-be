@@ -29,7 +29,7 @@ router.post('/UpdateById/:_id?/Photos',(req, res, next) => {
                 if (!field.done) {
                     parseIncoming();
                 } else {
-                    res.render('results', { docs: photo, endpoint: 'photos'});
+                    res.render('results', { docs: photo, endpoint: 'photos', method: 'updated'});
                 }
             })
             .catch((error) => {

@@ -21,7 +21,7 @@ router.put('/Add/Photos', (req, res, next) => {
     photo.save()
         .then((result) => {
             console.log(result);
-            res.render('results', { docs: result, endpoint: 'photos' })
+            res.render('results', { docs: result, endpoint: 'photos', method: 'added' })
         })
         .catch((error) => {
             res.render('error', { message: error })

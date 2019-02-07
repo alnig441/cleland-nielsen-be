@@ -12,44 +12,31 @@ a {
   color: #00B7FF;
 }
 
-#results h1 {
+h1 {
   color: darkslategrey;
   text-transform: uppercase;
 }
 
-#results p {
+p {
   display:inline;
   color: blueviolet;
 }
 
-#results span{
+span {
   color: cornflowerblue;
+  display: block;
+  margin-left: 30px;
 }
 
-/*#results span {*/
-  /*margin-left: 30px;*/
-  /*display:block;*/
-  /*color: cornflowerblue;*/
-/*}*/
-
-#results .level0 {
+.modelResults {
   margin-left: 0px;
 }
 
-#results .level1,
-#results .level2,
-#results .level3,
-#results .level4
-{
-  margin-left: 30px;
-  display: block;
-}
-
-#results .results {
+.results {
   margin: 20px;
 }
 
-#results .closing-tag {
+.closing-tag {
   margin: 0;
   display:inline;
 }

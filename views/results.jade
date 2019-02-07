@@ -1,30 +1,35 @@
 extends layout
 
 block content
-    main#results
+    main
         h1= endpoint + ' results'
         - var result= docs;
 
         - if (result.total)
             div.results
-                span.level0= '<'+ endpoint +'ModelResults>'
+                span.modelResults= '<'+ endpoint +'ModelResults>'
                     include ./partials/photo.jade
                 - if (docs.total && docs.total.toString() != 'NaN')
-                    span.level1= '<total>'
+                    span.model= '<total>'
                         p= docs.total
-                        span.no-margin='</total>'
+                        span.model.closing-tag='</total>'
                 - if (docs.limit && docs.limit.toString() != 'NaN')
-                    span.level1= '<limit>'
+                    span.model= '<limit>'
                         p= docs.limit
-                        span.no-margin= '</limit>'
+                        span.model.closing-tag= '</limit>'
                 - if (docs.page && docs.page.toString() != 'NaN')
-                    span.level1= '<page>'
+                    span.model= '<page>'
                         p= docs.page
-                        span.no-margin= '</page>'
+                        span.model.closing-tag= '</page>'
                 - if (docs.pages && docs.pages.toString() != 'NaN')
-                    span.level1= '<pages>'
+                    span.model= '<pages>'
                         p= docs.pages
-                        span.no-margin= '</pages>'
-                span.level0= '</'+ endpoint +'ModelResults>'
+                        span.model.closing-tag= '</pages>'
+                span.modelResults= '</'+ endpoint +'ModelResults>'
         - else
-            span= 'no results!'
+            div.results
+                - if(method)
+                    = method + ' from ' + endpoint
+                - else
+                    p= 'no documents found!'
+                include ./partials/photo.jade
