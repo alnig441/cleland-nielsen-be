@@ -4,7 +4,7 @@ var schemas = {
 
     photoSchema :
         new mongoose.Schema({
-            created: { type: Date , required: true, unique: true },
+            created: { type: Date , required: true},
             date: {
                 day: Number,
                 month: Number,
@@ -26,7 +26,7 @@ var schemas = {
                 },
             },
             image: {
-                fileName: { type: String, required: true },
+                fileName: { type: String, required: true, unique: true },
                 thumbnail: Buffer
             }
         }),

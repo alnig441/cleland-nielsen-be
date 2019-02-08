@@ -17,36 +17,51 @@ const batchLoad = {
 
         rl.on('line', (line) => {
 
-            let object = { names: [], venue: ''} ;
+            let photo = new Photo();
 
-            let matches = line.match(/{\w*\W*\w*\W*\w*\W*\w*\W*\w.}/ig);
+            let matches = line.match(/{+.[^\t]+}/ig);
 
             if (matches) {
                 matches.forEach((elem, ind, arr) => {
-                    line = line.replace(elem, '');
                     elem = elem.replace('{','');
                     elem = elem.replace('}','');
-                    ind == 0 ? object.venue = elem : elem.split(',').forEach((name) => { object.names.push(name)});
+
+                    let venue = elem.match(/".+"/ig);
+                    let array = elem.split(',');
+
+                    if (venue) {
+                        photo.set({
+                            'meta.venue': venue.toString().replace(/"/g, ''),
+                            'meta.keywords': array.filter((keyword) => {
+                                return keyword != venue;
+                            })
+                        })
+                    } else {
+                        photo.set({
+                            'meta.names': array
+                        })
+                    }
                 })
             }
 
-            let array = line.split(',');
+            line = line.replace(/\\N/g, '');
+            line = line.replace(/N\/a/g, '');
 
-            let photo = new Photo({
+            let array = line.split('\t');
+
+            photo.set({
                 created: array[1],
                 'date.day': array[5],
                 'date.month': array[4],
                 'date.year': array[3],
-                'location.city': array[9],
-                'location.state': array[8],
                 'location.country': array[7],
-                'meta.names': object.names,
-                'meta.venue': object.venue,
+                'location.state': array[8],
+                'location.city': array[9],
                 'meta.occasion': array[6],
                 'meta.event.da': array[12],
                 'meta.event.en': array[13],
                 'image.fileName': array[11]
-            });
+            })
 
             photo.save()
                 .then((image) => {
