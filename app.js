@@ -13,6 +13,8 @@ const v1_put = require('./routes/api/v1_put');
 const v1_post = require('./routes/api/v1_post');
 const loadDB = require('./app_modules/db_migration');
 
+// const validateFiles = require('./app_modules/file_validator');
+
 const app = express();
 
 mongoose.connect(process.env.MYDB, { useNewUrlParser: true });
@@ -20,10 +22,13 @@ const db = mongoose.connection;
 db.on('open', () => console.log('datebase open!'));
 db.on('error', (error) => console.log('db error: ', error));
 
-if (process.env.MIGRATE_FILE) {
-  console.log('batch loading');
-  loadDB(`public/${process.env.MIGRATE_FILE}`);
-}
+/* DATABASE MIGRATION */
+// if (process.env.MIGRATE_FILE) {
+//   console.log('batch loading');
+//   loadDB(`public/${process.env.MIGRATE_FILE}`);
+// }
+
+// validateFiles();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -34,6 +39,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('photos', express.static(process.env.PHOTOS_MOUNT_POINT));
 
 app.all('*', userAuth);
 app.use('/', index);
