@@ -1,6 +1,8 @@
 const fs = require('fs');
+const util = require('util');
 const readline = require('readline');
 const mongoose = require('mongoose');
+const append = util.promisify(fs.appendFile);
 
 const photoSchema = require('../schemas/schemas').photoSchema;
 
@@ -14,6 +16,7 @@ const batchLoad = {
             input: fs.createReadStream(pathToFile),
             crlfDelay: Infinity
         });
+
 
         rl.on('line', (line) => {
 
@@ -64,13 +67,16 @@ const batchLoad = {
             })
 
             photo.save()
-                .then((image) => {
-                    console.log('photo saved');
-                })
                 .catch((err) => {
-                    console.log(err);
+                    append('.migration-log', `${err.message}\n`, 'utf8')
+                        .catch((err) => {
+                            console.log(err);
+                        })
+
                 })
 
+        }).on('close', () => {
+            console.log('done!')
         })
 
     }

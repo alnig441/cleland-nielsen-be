@@ -29,4 +29,17 @@ router.put('/Add/Photos', (req, res, next) => {
 
 });
 
+router.put('/Create/Photos', (req, res, next) => {
+
+    let photosArray = req.body.photos;
+
+    Photo.create(photosArray)
+        .then((result) => {
+            res.render('results', { docs: result , endpoint: 'photos', method: 'added'})
+        })
+        .catch((error) => {
+            res.render('error', { message: error })
+        })
+})
+
 module.exports = router;

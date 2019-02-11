@@ -6,7 +6,7 @@ const rename = util.promisify(fs.rename);
 
 const validator = {
 
-    default: function() {
+    default: function(cb) {
 
         let goTo;
 
@@ -25,6 +25,11 @@ const validator = {
 
             if (!done) {
                 findFile(list.value, stepThrough);
+            } else {
+                getFiles()
+                    .then((result) => {
+                        cb(result);
+                })
             }
 
         }
