@@ -4,6 +4,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
+const jobHandler = require('./app_modules/job_handler');
 
 const userAuth = require('./routes/authenticate');
 const index = require('./routes/index');
@@ -12,6 +13,8 @@ const v1_delete = require('./routes/api/v1_delete');
 const v1_put = require('./routes/api/v1_put');
 const v1_post = require('./routes/api/v1_post');
 const loadDB = require('./app_modules/db_migration');
+
+const jobs = new jobHandler();
 
 const app = express();
 
@@ -67,5 +70,29 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+
+jobs.detectNewPhotos();
+
+jobs.on('photos', (files) => {
+  if (files.length > 0){
+    console.log('files found - procede with exif: ', files);
+    jobs.addExif();
+  } else {
+    console.log('photoapp_temp empty!')
+  }
+
+})
+
+jobs.on('exif', (documents) => {
+  if (documents.length > 0) {
+    console.log('exif done - procede with location')
+  } else {
+    console.log('exif done - no documents')
+  }
+})
+jobs.on('error', (error) => {
+  console.log('there was an error: ', error);
+})
 
 module.exports = app;
