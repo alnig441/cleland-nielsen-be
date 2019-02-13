@@ -2,7 +2,7 @@ const fastExif = require('fast-exif');
 const mongoose = require('mongoose');
 const photoSchema = require('../schemas/schemas').photoSchema;
 const Photo = mongoose.model('photo', photoSchema);
-const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/WD-USB-DISK/photoapp_temp/' : process.env.PHOTOS_MOUNT_POINT + '/photoapptemp/';
+const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/WD-USB-DISK/photoapptemp/' : process.env.PHOTOS_MOUNT_POINT + '/photoapptemp/';
 
 parseExifInfo = {
 

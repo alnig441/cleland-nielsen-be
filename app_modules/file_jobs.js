@@ -3,7 +3,7 @@ const util = require('util');
 const readdir = util.promisify(fs.readdir);
 const access = util.promisify(fs.access);
 const rename = util.promisify(fs.rename);
-const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/WD-USB-DISK' : process.env.PHOTOS_MOUNT_POINT + '/photoapptemp/';
+const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/WD-USB-DISK' : process.env.PHOTOS_MOUNT_POINT;
 
 const validator = {
 
@@ -76,8 +76,8 @@ function findFile(file, next) {
 
 function renameFile(file, next) {
 
-    let from = `${baseUrl}/photoapp_temp/${file}`;
-    let to = `${baseUrl}/photoapp_temp/${Date.parse(new Date())}_${file}`;
+    let from = `${baseUrl}/photoapptemp/${file}`;
+    let to = `${baseUrl}/photoapptemp/${Date.parse(new Date())}_${file}`;
 
     rename(from, to)
         .then((result) => {
@@ -91,7 +91,7 @@ function renameFile(file, next) {
 
 function getFiles() {
 
-    let path = `${baseUrl}/photoapp_temp/`;
+    let path = `${baseUrl}/photoapptemp/`;
     return readdir(path);
 }
 
