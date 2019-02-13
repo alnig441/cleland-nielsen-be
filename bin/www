@@ -4,15 +4,16 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('photoapp-mongo-api:server');
-var http = require('http');
+const app = require('../app');
+const debug = require('debug')('photoapp-mongo-api:server');
+const http = require('http');
+const hostName = process.env.NODE_ENV === 'production' ? "0.0.0.0": "localhost";
+const port = process.env.NODE_ENV === "production" ? normalizePort(process.env.PORT) : "3000";
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
@@ -25,7 +26,7 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
+server.listen(port, hostName);
 server.on('error', onError);
 server.on('listening', onListening);
 
