@@ -5,7 +5,7 @@ const access = util.promisify(fs.access);
 const rename = util.promisify(fs.rename);
 const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/WD-USB-DISK' : process.env.PHOTOS_MOUNT_POINT;
 
-const validator = {
+const fileJobs = {
 
     default: function(cb) {
 
@@ -97,4 +97,4 @@ function getFiles() {
 
 
 
-module.exports = validator.default;
+module.exports = fileJobs.default;

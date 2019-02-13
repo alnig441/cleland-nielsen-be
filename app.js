@@ -5,7 +5,6 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
 const jobHandler = require('./app_modules/job_handler');
-
 require('dotenv').config({path: path.join(__dirname, '.env')});
 
 const userAuth = require('./routes/authenticate');
@@ -79,7 +78,7 @@ jobs.detectNewPhotos();
 jobs.on('photos', (files) => {
   if (files.length > 0){
     console.log('files found - procede with exif: ', files);
-    jobs.addExif();
+    jobs.addExif(files);
   } else {
     console.log('photoapptemp empty!')
   }
@@ -88,9 +87,18 @@ jobs.on('photos', (files) => {
 
 jobs.on('exif', (documents) => {
   if (documents.length > 0) {
-    console.log('exif done - procede with location')
+    console.log('exif done - procede with location');
+    jobs.addLocation();
   } else {
     console.log('exif done - no documents')
+  }
+})
+
+jobs.on('location', (documents) => {
+  if (documents.length > 0) {
+    console.log('location done - save to db')
+  } else {
+    console.log('location done - no documents')
   }
 })
 jobs.on('error', (error) => {

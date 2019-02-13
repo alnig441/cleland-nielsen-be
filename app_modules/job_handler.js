@@ -1,41 +1,40 @@
 const events = require('events');
 const fileHandler = require('./file_jobs');
 const exifHandler = require('./exif_jobs');
+const googleApiHandler = require('./google_jobs');
 
 const jobHandler = function() {
 
     events.EventEmitter.call(this);
 
     this.files = [];
-    this.temp_docs= [];
+    this.temp_docs = [];
     this.documents = [];
-    this.index = 0;
     this.infoType;
 
     this.fileHandler = fileHandler;
     this.exifHandler = exifHandler;
+    this.googleApiHandler = googleApiHandler;
 
 
-    this.generateNext = (err, doc) => {
-        this.index ++;
-        if( err ){
-            this.emit('error', err);
-        }
+    this.generateDocument = (err, doc) => {
 
         doc ? doc.gps ? this.temp_docs.push(doc) : this.documents.push(doc) : null;
 
-        this.procede();
+        err ? this.emit('error', err) : this.procedeThroughFiles();
+
     };
 
-    this.procede = () => {
-        if (this.index == this.files.length) {
-            this.infoType ? this.emit(this.infoType, this.documents) : this.emit('done', this.documents);
+    this.procedeThroughFiles = () => {
+        if (this.files.length == 0) {
+            this.infoType  == 'exif' ? this.emit(this.infoType, this.temp_docs) : this.emit(this.infoType, this.documents);
         } else {
             switch(this.infoType) {
                 case 'exif':
-                    this.exifHandler(this.files[this.index], this.generateNext);
+                    this.exifHandler(this.files.shift(), this.generateDocument);
                     break;
                 case 'location':
+                    this.googleApiHandler(this.temp_docs.shift(), this.generateDocument);
                     break;
                 default:
                     this.emit('done');
@@ -55,7 +54,6 @@ jobHandler.prototype.detectNewPhotos = function () {
         if ( err ) {
             this.emit('error', err);
         } else {
-            this.files = res;
             this.emit('photos', res);
         }
     });
@@ -63,11 +61,13 @@ jobHandler.prototype.detectNewPhotos = function () {
     return this;
 }
 
-jobHandler.prototype.addExif = function () {
+jobHandler.prototype.addExif = function (files) {
 
     this.infoType = 'exif';
 
-    this.exifHandler(this.files[this.index], this.generateNext);
+    this.files = files;
+
+    this.exifHandler(this.files.shift(), this.generateDocument)
 
     return this;
 
@@ -76,6 +76,8 @@ jobHandler.prototype.addExif = function () {
 jobHandler.prototype.addLocation = function () {
 
     this.infoType = 'location';
+
+    this.googleApiHandler(this.temp_docs.shift(), this.generateDocument)
 
     return this;
 }
