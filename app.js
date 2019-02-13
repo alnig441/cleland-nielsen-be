@@ -6,6 +6,8 @@ const logger = require('morgan');
 const mongoose = require('mongoose');
 const jobHandler = require('./app_modules/job_handler');
 
+require('dotenv').config({path: path.join(__dirname, '.env')});
+
 const userAuth = require('./routes/authenticate');
 const index = require('./routes/index');
 const v1_get = require('./routes/api/v1_get');
@@ -79,7 +81,7 @@ jobs.on('photos', (files) => {
     console.log('files found - procede with exif: ', files);
     jobs.addExif();
   } else {
-    console.log('photoapp_temp empty!')
+    console.log('photoapptemp empty!')
   }
 
 })
