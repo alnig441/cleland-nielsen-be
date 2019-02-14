@@ -16,11 +16,10 @@ const v1_put = require('./routes/api/v1_put');
 const v1_post = require('./routes/api/v1_post');
 const loadDB = require('./app_modules/db_migration');
 
-let jobs;
-
 const app = express();
 
 mongoose.connect(process.env.MYDB, { useNewUrlParser: true });
+mongoose.set('useCreateIndex', true);
 const db = mongoose.connection;
 db.on('open', () => console.log('datebase open!'));
 db.on('error', (error) => console.log('db error: ', error));
@@ -76,7 +75,7 @@ app.use(function(err, req, res, next) {
 
 cron.schedule(process.env.SCHEDULE, () => {
 
-  jobs = new jobHandler();
+  let jobs = new jobHandler();
 
   jobs.detectNewPhotos();
 
@@ -111,7 +110,7 @@ cron.schedule(process.env.SCHEDULE, () => {
 
   jobs.on('location', (documents) => {
     if (documents.length > 0) {
-      console.log('location done - save to db', documents)
+      console.log('location done - save to db')
       jobs.createPhotos();
     } else {
       console.log('location done - no documents')
@@ -120,7 +119,7 @@ cron.schedule(process.env.SCHEDULE, () => {
 
   jobs.on('mongo', (result) => {
     if (result) {
-      console.log('documents saved: ', result);
+      console.log('documents saved!');
     }
     jobs.removeAllListeners();
   })
