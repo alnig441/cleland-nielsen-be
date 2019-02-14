@@ -2,6 +2,7 @@ const events = require('events');
 const fileHandler = require('./file_jobs');
 const exifHandler = require('./exif_jobs');
 const googleApiHandler = require('./google_jobs');
+const mongoHandler = require('./mongo_jobs');
 
 const jobHandler = function() {
 
@@ -16,6 +17,7 @@ const jobHandler = function() {
     this.convertAndMove = fileHandler.convertAndMovePhotos;
     this.exifHandler = exifHandler;
     this.googleApiHandler = googleApiHandler;
+    this.mongoHandler = mongoHandler;
 
 
     this.buildDocument = ( error, document ) => {
@@ -33,7 +35,7 @@ const jobHandler = function() {
                 this.files.length == 0 ? this.emit( this.infoType, this.exifAdded) : this.exifHandler( this.files.shift(), this.buildDocument );
                 break;
             case 'location':
-                this.files.length == 0 ? this.emit( this.infoType, this.exifAndLocationAdded ) : this.googleApiHandler( this.exifAdded.shift(), this.buildDocument );
+                this.exifAdded.length == 0 ? this.emit( this.infoType, this.exifAndLocationAdded ) : this.googleApiHandler( this.exifAdded.shift(), this.buildDocument );
                 break;
             default:
                 this.emit( 'done' );
@@ -47,11 +49,9 @@ const jobHandler = function() {
         if ( error ) {
             this.emit( 'error', error );
         }
-        if ( this.files.length > 0 ) {
-            this.convertAndMove( this.files.shift(), this.convertMoveNext );
-        } else {
-            this.emit( 'converted' );
-        }
+
+        this.files.length > 0 ? this.convertAndMove( this.files.shift(), this.convertMoveNext ) : this.emit( 'converted' ) ;
+
     }
 
     return this;
@@ -102,6 +102,17 @@ jobHandler.prototype.addLocation = function () {
     this.googleApiHandler( this.exifAdded.shift(), this.buildDocument );
 
     return this;
+}
+
+jobHandler.prototype.createPhotos = function () {
+
+    this.mongoHandler( this.exifAndLocationAdded )
+        .then( ( result ) => {
+            this.emit( 'mongo', result );
+        })
+        .catch( ( error ) => {
+            this.emit( 'error', error );
+        })
 }
 
 module.exports = jobHandler;

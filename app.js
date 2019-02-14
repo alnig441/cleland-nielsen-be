@@ -87,21 +87,37 @@ jobs.on('photos', (files) => {
 
 jobs.on('exif', (documents) => {
   if (documents.length > 0) {
-    console.log('exif done - procede with location');
+    console.log('exif done - procede with converting and moving');
     jobs.convertAndMovePhotos();
-    // jobs.addLocation();
   } else {
     console.log('exif done - no documents')
+  }
+})
+
+jobs.on('converted', (err) => {
+  if (err) {
+    console.log(err);
+  } else {
+    console.log('converted - procede with adding location')
+    jobs.addLocation();
   }
 })
 
 jobs.on('location', (documents) => {
   if (documents.length > 0) {
     console.log('location done - save to db', documents)
+    jobs.createPhotos();
   } else {
     console.log('location done - no documents')
   }
 })
+
+jobs.on('mongo', (result) => {
+  if (result) {
+    console.log('documents saved: ', result);
+  }
+})
+
 jobs.on('error', (error) => {
   console.log('there was an error: ', error);
 })

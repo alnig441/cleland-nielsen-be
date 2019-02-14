@@ -5,7 +5,7 @@ const timeZoneApi = 'https://maps.googleapis.com/maps/api/timezone/json?';
 
 const googleJobs = {
 
-    getApiData: function ( data, jobHandlerCallback ) {
+    getApiData: function ( data, cbToJobHandler ) {
 
         let timestamp = Date.parse( data.document.created );
 
@@ -23,7 +23,7 @@ const googleJobs = {
                     null;
 
             if ( err ) {
-                jobHandlerCallback( err );
+                cbToJobHandler( err );
             }
             if ( !res && api ) {
                 consumeApi( api, data.document, doGetApiData );
@@ -32,7 +32,7 @@ const googleJobs = {
                 consumeApi( api, res, doGetApiData );
             }
             if ( !api ) {
-                jobHandlerCallback( null, res );
+                cbToJobHandler( null, res );
             }
 
         }
@@ -41,13 +41,13 @@ const googleJobs = {
 
 }
 
-function consumeApi ( uri, document, apiCallback ) {
+function consumeApi ( uri, document, cbToDoGetApi ) {
     let payload = '';
 
     https.get( uri, ( result ) => {
 
         result.on( 'error', ( err ) => {
-            apiCallback(err);
+            cbToDoGetApi(err);
         })
 
         result.on( 'data', ( data ) => {
@@ -57,13 +57,13 @@ function consumeApi ( uri, document, apiCallback ) {
         result.on( 'end', () => {
             let body = JSON.parse( payload );
             body.status == 'OK' ?
-                modifyDocument( body, document, apiCallback ) :
-                apiCallback( body.status );
+                modifyDocument( body, document, cbToDoGetApi ) :
+                cbToDoGetApi( body.status );
         })
     })
 }
 
-function modifyDocument ( payload, document, apiCallback ) {
+function modifyDocument ( payload, document, cbToDoGetApi ) {
 
     if ( payload.timeZoneName ) {
         let timestamp = Date.parse( document.created );
@@ -97,7 +97,7 @@ function modifyDocument ( payload, document, apiCallback ) {
 
     }
 
-    apiCallback( null, document );
+    cbToDoGetApi( null, document );
 }
 
 

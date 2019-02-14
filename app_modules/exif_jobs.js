@@ -1,14 +1,18 @@
 const fastExif = require('fast-exif');
 const mongoose = require('mongoose');
+const paginate = require('mongoose-paginate');
 const photoSchema = require('../schemas/schemas').photoSchema;
+photoSchema.plugin(paginate);
+
 const Photo = mongoose.model('photo', photoSchema);
+
 const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/WD-USB-DISK/photoapptemp/' : process.env.PHOTOS_MOUNT_POINT + '/photoapptemp/';
 
 const exifJobs = {
 
-    default: function(file, callback){
+    default: function(file, cbToJobHandler){
 
-        fastExif.read(baseUrl + file, callback)
+        fastExif.read(baseUrl + file, cbToJobHandler)
             .then(result => {
 
                 if ( result && result.exif.DateTimeOriginal ) {
@@ -36,16 +40,16 @@ const exifJobs = {
                         });
                     }
 
-                    callback( null, { document: photo, gps: gpsObj} );
+                    cbToJobHandler( null, { document: photo, gps: gpsObj} );
 
                 } else {
-                    callback( null, null )
+                    cbToJobHandler( null, null )
                 }
 
 
             })
             .catch(err => {
-                callback(err)
+                cbToJobHandler(err)
             })
 
     }

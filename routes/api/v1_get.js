@@ -25,7 +25,7 @@ router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 
 router.get('/Search/Photos?', (req, res, next) => {
 
-    let options = { page: parseInt(req.query.page) , limit: parseInt(process.env.LIMIT) };
+    let options = { page: parseInt(req.query.page) || undefined , limit: parseInt(process.env.LIMIT) };
     let doAnd;
 
     //detect if album view year/month
@@ -35,7 +35,7 @@ router.get('/Search/Photos?', (req, res, next) => {
 
     let query = parser.parseSearchQuery(req.query, doAnd);
 
-    Photo.paginate( query , options)
+    Photo.paginate( query , options )
         .then((result) => {
             res.render('results', {docs: result, endpoint: 'photos'})
         })
