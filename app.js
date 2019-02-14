@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
 const jobHandler = require('./app_modules/job_handler');
+const cron = require('node-cron');
 require('dotenv').config({path: path.join(__dirname, '.env')});
 
 const userAuth = require('./routes/authenticate');
@@ -15,7 +16,7 @@ const v1_put = require('./routes/api/v1_put');
 const v1_post = require('./routes/api/v1_post');
 const loadDB = require('./app_modules/db_migration');
 
-const jobs = new jobHandler();
+let jobs;
 
 const app = express();
 
@@ -73,53 +74,63 @@ app.use(function(err, req, res, next) {
 });
 
 
-jobs.detectNewPhotos();
+cron.schedule(process.env.SCHEDULE, () => {
 
-jobs.on('photos', (files) => {
-  if (files.length > 0){
-    console.log('files found - procede with exif: ', files);
-    jobs.addExif(files);
-  } else {
-    console.log('photoapptemp empty!')
-  }
+  jobs = new jobHandler();
+
+  jobs.detectNewPhotos();
+
+  jobs.on('photos', (files) => {
+    if (files.length > 0){
+      console.log('files found - procede with exif: ', files);
+      jobs.addExif(files);
+    } else {
+      console.log('photoapptemp empty!')
+      jobs.removeAllListeners();
+    }
+
+  })
+
+  jobs.on('exif', (documents) => {
+    if (documents.length > 0) {
+      console.log('exif done - procede with converting and moving');
+      jobs.convertAndMovePhotos();
+    } else {
+      console.log('exif done - no documents')
+    }
+  })
+
+  jobs.on('converted', (err) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log('converted - procede with adding location')
+      jobs.addLocation();
+    }
+  })
+
+  jobs.on('location', (documents) => {
+    if (documents.length > 0) {
+      console.log('location done - save to db', documents)
+      jobs.createPhotos();
+    } else {
+      console.log('location done - no documents')
+    }
+  })
+
+  jobs.on('mongo', (result) => {
+    if (result) {
+      console.log('documents saved: ', result);
+    }
+    jobs.removeAllListeners();
+  })
+
+  jobs.on('error', (error) => {
+    console.log('there was an error: ', error);
+    jobs.removeAllListeners();
+  })
 
 })
 
-jobs.on('exif', (documents) => {
-  if (documents.length > 0) {
-    console.log('exif done - procede with converting and moving');
-    jobs.convertAndMovePhotos();
-  } else {
-    console.log('exif done - no documents')
-  }
-})
-
-jobs.on('converted', (err) => {
-  if (err) {
-    console.log(err);
-  } else {
-    console.log('converted - procede with adding location')
-    jobs.addLocation();
-  }
-})
-
-jobs.on('location', (documents) => {
-  if (documents.length > 0) {
-    console.log('location done - save to db', documents)
-    jobs.createPhotos();
-  } else {
-    console.log('location done - no documents')
-  }
-})
-
-jobs.on('mongo', (result) => {
-  if (result) {
-    console.log('documents saved: ', result);
-  }
-})
-
-jobs.on('error', (error) => {
-  console.log('there was an error: ', error);
-})
 
 module.exports = app;
