@@ -96,7 +96,7 @@ jobs.on('exif', (documents) => {
 
 jobs.on('location', (documents) => {
   if (documents.length > 0) {
-    console.log('location done - save to db')
+    console.log('location done - save to db', documents)
   } else {
     console.log('location done - no documents')
   }
