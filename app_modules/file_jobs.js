@@ -7,7 +7,7 @@ const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/WD-USB-DISK' :
 
 const fileJobs = {
 
-    default: function(cb) {
+    detectPhotos: function(cb) {
 
         let goTo;
 
@@ -48,7 +48,13 @@ const fileJobs = {
 
     },
 
+    convertAndMovePhotos: function ( file, cb ) {
 
+        console.log('converting: ', file);
+
+        cb(null);
+
+    }
 
 
 }
@@ -97,4 +103,4 @@ function getFiles() {
 
 
 
-module.exports = fileJobs.default;
+module.exports = fileJobs;

@@ -5,43 +5,54 @@ const googleApiHandler = require('./google_jobs');
 
 const jobHandler = function() {
 
-    events.EventEmitter.call(this);
+    events.EventEmitter.call( this );
 
     this.files = [];
-    this.temp_docs = [];
-    this.documents = [];
+    this.exifAdded = [];
+    this.exifAndLocationAdded = [];
     this.infoType;
 
-    this.fileHandler = fileHandler;
+    this.detect = fileHandler.detectPhotos;
+    this.convertAndMove = fileHandler.convertAndMovePhotos;
     this.exifHandler = exifHandler;
     this.googleApiHandler = googleApiHandler;
 
 
-    this.generateDocument = (err, doc) => {
+    this.buildDocument = ( error, document ) => {
 
-        doc ? doc.gps ? this.temp_docs.push(doc) : this.documents.push(doc) : null;
+        document ? document.gps ? this.exifAdded.push( document ) : this.exifAndLocationAdded.push( document ) : null;
 
-        err ? this.emit('error', err) : this.procedeThroughFiles();
+        error ? this.emit( 'error', error ) : this.procede();
 
     };
 
-    this.procedeThroughFiles = () => {
-        if (this.files.length == 0) {
-            this.infoType  == 'exif' ? this.emit(this.infoType, this.temp_docs) : this.emit(this.infoType, this.documents);
-        } else {
-            switch(this.infoType) {
-                case 'exif':
-                    this.exifHandler(this.files.shift(), this.generateDocument);
-                    break;
-                case 'location':
-                    this.googleApiHandler(this.temp_docs.shift(), this.generateDocument);
-                    break;
-                default:
-                    this.emit('done');
-                    break;
-            }
+    this.procede = () => {
+
+        switch( this.infoType ) {
+            case 'exif':
+                this.files.length == 0 ? this.emit( this.infoType, this.exifAdded) : this.exifHandler( this.files.shift(), this.buildDocument );
+                break;
+            case 'location':
+                this.files.length == 0 ? this.emit( this.infoType, this.exifAndLocationAdded ) : this.googleApiHandler( this.exifAdded.shift(), this.buildDocument );
+                break;
+            default:
+                this.emit( 'done' );
+                break;
         }
+
     };
+
+    this.convertMoveNext = ( error ) => {
+
+        if ( error ) {
+            this.emit( 'error', error );
+        }
+        if ( this.files.length > 0 ) {
+            this.convertAndMove( this.files.shift(), this.convertMoveNext );
+        } else {
+            this.emit( 'converted' );
+        }
+    }
 
     return this;
 }
@@ -50,24 +61,35 @@ jobHandler.prototype = new events.EventEmitter();
 
 jobHandler.prototype.detectNewPhotos = function () {
 
-    this.fileHandler(( err, res ) => {
-        if ( err ) {
-            this.emit('error', err);
+    this.detect( ( error, result ) => {
+        if ( error ) {
+            this.emit( 'error', error );
         } else {
-            this.emit('photos', res);
+            this.emit( 'photos', result );
         }
     });
 
     return this;
 }
 
-jobHandler.prototype.addExif = function (files) {
+jobHandler.prototype.convertAndMovePhotos = function () {
+
+    this.exifAdded.forEach( ( element, index ) => {
+        this.files.push( element.document.image.fileName );
+    })
+
+    this.convertAndMove( this.files.shift(), this.convertMoveNext );
+
+    return this;
+}
+
+jobHandler.prototype.addExif = function ( files ) {
 
     this.infoType = 'exif';
 
     this.files = files;
 
-    this.exifHandler(this.files.shift(), this.generateDocument)
+    this.exifHandler( this.files.shift(), this.buildDocument );
 
     return this;
 
@@ -77,7 +99,7 @@ jobHandler.prototype.addLocation = function () {
 
     this.infoType = 'location';
 
-    this.googleApiHandler(this.temp_docs.shift(), this.generateDocument)
+    this.googleApiHandler( this.exifAdded.shift(), this.buildDocument );
 
     return this;
 }

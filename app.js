@@ -88,7 +88,8 @@ jobs.on('photos', (files) => {
 jobs.on('exif', (documents) => {
   if (documents.length > 0) {
     console.log('exif done - procede with location');
-    jobs.addLocation();
+    jobs.convertAndMovePhotos();
+    // jobs.addLocation();
   } else {
     console.log('exif done - no documents')
   }

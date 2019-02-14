@@ -39,7 +39,6 @@ const googleJobs = {
 
     }
 
-
 }
 
 function consumeApi ( uri, document, apiCallback ) {
