@@ -13,7 +13,7 @@ const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/WD-USB-DISK' :
 
 const fileJobs = {
 
-    detectPhotos: function( cb ) {
+    detectPhotos: function( cbToJobHandler ) {
 
         let goTo;
 
@@ -35,10 +35,10 @@ const fileJobs = {
             } else {
                 getFiles()
                     .then( ( result ) => {
-                        cb( null, result );
+                        cbToJobHandler( null, result );
                 })
                     .catch(( error ) => {
-                        cb( error );
+                        cbToJobHandler( error );
                     })
             }
 
@@ -54,7 +54,7 @@ const fileJobs = {
 
     },
 
-    convertAndMovePhotos: function ( file, callback ) {
+    convertAndMovePhotos: function ( file, cbToJobHandler ) {
 
         let pngFile = file.replace( /jp?g/i, 'png' );
 
@@ -62,23 +62,23 @@ const fileJobs = {
             let wasRotated = error ? false : true;
 
             if ( !error ) {
-                save( buffer, file )
+                saveFile( buffer, file )
                     .then( () => {
                         return null;
                     })
                     .catch(( error ) => {
-                        callback( error );
+                        cbToJobHandler( error );
                     })
             }
 
-            convert( buffer , pngFile)
+            convertFile( buffer , pngFile)
                 .then(
-                    move(file, wasRotated, ( error ) => {
-                        error ? callback( error ) : callback( null,`${file} converted and moved` );
+                    moveFile(file, wasRotated, ( error ) => {
+                        error ? cbToJobHandler( error ) : cbToJobHandler( null,`${file} converted and moved` );
                     })
                 )
                 .catch(( error ) => {
-                    callback( error );
+                    cbToJobHandler( error );
                 })
         })
 
@@ -87,14 +87,14 @@ const fileJobs = {
 
 }
 
-function save( buffer, file ) {
+function saveFile ( buffer, file ) {
     return jimp.read( buffer )
         .then(image => {
             image.writeAsync(`${baseUrl}/James/${file}`)
         })
 }
 
-function convert( buffer, pngFile ) {
+function convertFile ( buffer, pngFile ) {
     return jimp.read(buffer)
         .then(image => {
             image.resize(280, jimp.AUTO);
@@ -102,7 +102,7 @@ function convert( buffer, pngFile ) {
         })
 }
 
-function move( file, wasRotated, callback ) {
+function moveFile ( file, wasRotated, callback ) {
 
     let split = file.split(' ');
     let joined = split.join('\\ ');
@@ -122,7 +122,7 @@ function move( file, wasRotated, callback ) {
 
 }
 
-function findFile ( file, next ) {
+function findFile ( file, cbToStepThrough ) {
 
     let path = `${baseUrl}/James/${file}`;
 
@@ -130,25 +130,25 @@ function findFile ( file, next ) {
         .then(( data ) => {
             if (!data) {
                 console.log(`file ${file} exists - renaming`);
-                renameFile(file, next);
+                renameFile(file, cbToStepThrough);
             }
         })
         .catch((err) => {
             if (err.code == 'ENOENT') {
                 console.log(`file ${file} does not exist - please continue`);
-                next();
+                cbToStepThrough();
             }
         })
 }
 
-function renameFile ( file, next ) {
+function renameFile ( file, cbToStepThrough ) {
 
     let from = `${baseUrl}/photoapptemp/${file}`;
     let to = `${baseUrl}/photoapptemp/${Date.parse(new Date())}_${file}`;
 
     rename(from, to)
         .then((result) => {
-            next();
+            cbToStepThrough();
         })
         .catch((err) => {
             console.log('error renaming ', err);
