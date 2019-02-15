@@ -67,7 +67,7 @@ jobHandler.prototype.detectNewPhotos = function () {
 
     this.detect( ( error, result ) => {
 
-        error ? this.emit('error', error ) : result.length > 0 ? this.emit('done', { photos: result }) : this.emit('done', { photos: null} );
+        error ? this.emit('error', error ) : result.length > 0 ? this.emit('done', { photos: result }) : this.emit('done', { photos: false} );
 
     });
 

@@ -97,7 +97,7 @@ cron.schedule(process.env.SCHEDULE, () => {
 
     switch ( Object.keys(obj)[0] ) {
       case 'photos':
-        writeToLog(`\nINFO:\t${obj.photos.length} new files in /photoapptemp`);
+        writeToLog(`\nINFO:\t${obj.photos || 0} new files in /photoapptemp`);
         obj.photos ? jobs.addExif(obj.photos) : removeListeners( false );
         break;
       case 'exif':
