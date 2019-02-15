@@ -109,7 +109,7 @@ function move( file, wasRotated, callback ) {
 
     let execStr =
         wasRotated ?
-            `mv ${baseUrl}/photoapptemp/${joined} ${baseUrl}/James/${joined.replace(/jp?g/i, ( result ) => { return 'original.' + result } )}`:
+            `mv ${baseUrl}/photoapptemp/${joined} ${baseUrl}/James/${joined.replace(/jp?g/i, ( match ) => { return 'original.' + match } )}`:
             `mv ${baseUrl}/photoapptemp/${joined} ${baseUrl}/James`;
 
     exec(execStr, ( err, stdout, stdin ) => {

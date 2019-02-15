@@ -92,7 +92,7 @@ cron.schedule(process.env.SCHEDULE, () => {
 
   jobs.on('exif', (documents) => {
     if (documents.length > 0) {
-      console.log('exif done - procede with converting and moving');
+      console.log('exif done - procede with converting and moving', documents);
       jobs.convertAndMovePhotos();
     } else {
       console.log('exif done - no documents')

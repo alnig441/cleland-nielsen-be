@@ -14,7 +14,7 @@ const googleJobs = {
             { offset    : `${timeZoneApi}location=${data.gps.latitude},${data.gps.longitude}&timestamp=${timestamp.toString().slice(0,10)}&key=${key}` }
         ]
 
-        doGetApiData();
+        data.gps ? doGetApiData() : cbToJobHandler( null, data.document ) ;
 
         function doGetApiData ( err, res ) {
             let api =

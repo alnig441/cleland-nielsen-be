@@ -10,58 +10,66 @@ const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/WD-USB-DISK/ph
 
 const exifJobs = {
 
-    default: function(file, cbToJobHandler){
+    default: function ( file, cbToJobHandler ){
 
         fastExif.read(baseUrl + file, cbToJobHandler)
             .then(result => {
 
-                if ( result && result.exif.DateTimeOriginal ) {
+                if ( result ) {
 
                     let photo = new Photo();
+                    photo.set({ 'image.fileName' : file });
 
-                    photo.set({
-                        created : result.exif.DateTimeOriginal,
-                        'image.fileName': file
-                    })
-
-                    let gpsObj = {
-                        latitude: null,
-                        longitude: null,
-                    };
-
-                    if (result.gps && result.gps.GPSLatitude) {
-                        gpsObj.latitude = convertCoordinates({
-                            coordinate: result.gps.GPSLatitude,
-                            reference: result.gps.GPSLatitudeRef
-                        });
-                        gpsObj.longitude = convertCoordinates({
-                            coordinate: result.gps.GPSLongitude,
-                            reference: result.gps.GPSLongitudeRef
-                        });
-                    }
-
-                    cbToJobHandler( null, { document: photo, gps: gpsObj} );
+                    cbToJobHandler( null, extractData( result, photo ) );
 
                 } else {
-                    cbToJobHandler( null, null )
+
+                    cbToJobHandler( null, null );
+
                 }
 
 
             })
             .catch(err => {
-                cbToJobHandler(err)
+
+                cbToJobHandler( err );
+
             })
 
     }
 
 }
 
-function convertCoordinates (data) {
+function extractData ( exifData, document ) {
+
+    let gps;
+
+    if ( exifData.gps && exifData.gps.GPSLatitude ) {
+
+        gps = {
+            latitude    : convertCoordinates({ coordinate: exifData.gps.GPSLatitude, reference: exifData.gps.GPSLatitudeRef}),
+            longitude   : convertCoordinates({ coordinate: exifData.gps.GPSLongitude, reference: exifData.gps.GPSLongitudeRef})
+        }
+
+    }
+
+    if ( exifData.exif.DateTimeOriginal ) {
+
+        document.set({ created: exifData.exif.DateTimeOriginal })
+
+    }
+
+    return document.created ? { document: document, gps: gps } : null;
+
+}
+
+function convertCoordinates ( data ) {
+
     let isNegative = data.reference.toLowerCase() == 's' || data.reference.toLowerCase() == 'w';
     let conversion;
 
-    data.coordinate.forEach((elem, ind) => {
-        switch (ind) {
+    data.coordinate.forEach( ( elem, ind ) => {
+        switch ( ind ) {
             case 0:
                 conversion = elem;
                 break;
