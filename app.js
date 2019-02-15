@@ -8,6 +8,8 @@ const jobHandler = require('./app_modules/job_handler');
 const cron = require('node-cron');
 require('dotenv').config({path: path.join(__dirname, '.env')});
 
+let jobs = new jobHandler();
+
 const userAuth = require('./routes/authenticate');
 const index = require('./routes/index');
 const v1_get = require('./routes/api/v1_get');
@@ -75,59 +77,42 @@ app.use(function(err, req, res, next) {
 
 cron.schedule(process.env.SCHEDULE, () => {
 
-  let jobs = new jobHandler();
+  jobs.on( 'done', done );
 
-  jobs.detectNewPhotos();
-
-  jobs.on('photos', (files) => {
-    if (files.length > 0){
-      console.log('files found - procede with exif: ', files);
-      jobs.addExif(files);
-    } else {
-      console.log('photoapptemp empty!')
-      jobs.removeAllListeners();
-    }
-
-  })
-
-  jobs.on('exif', (documents) => {
-    if (documents.length > 0) {
-      console.log('exif done - procede with converting and moving', documents);
-      jobs.convertAndMovePhotos();
-    } else {
-      console.log('exif done - no documents')
-    }
-  })
-
-  jobs.on('converted', (err) => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log('converted - procede with adding location')
-      jobs.addLocation();
-    }
-  })
-
-  jobs.on('location', (documents) => {
-    if (documents.length > 0) {
-      console.log('location done - save to db')
-      jobs.createPhotos();
-    } else {
-      console.log('location done - no documents')
-    }
-  })
-
-  jobs.on('mongo', (result) => {
-    if (result) {
-      console.log('documents saved!');
-    }
-    jobs.removeAllListeners();
-  })
-
-  jobs.on('error', (error) => {
+  jobs.on( 'error', ( error ) => {
     console.log('there was an error: ', error);
     jobs.removeAllListeners();
   })
+
+  jobs.detectNewPhotos();
+
+  function done ( obj ) {
+
+    switch ( Object.keys(obj)[0] ) {
+      case 'photos':
+        console.log('files found: ', obj.photos);
+        obj.photos ? jobs.addExif(obj.photos) : jobs.removeAllListeners();
+        break;
+      case 'exif':
+        console.log('exif added: ', obj.exif);
+        obj.exif ? jobs.convertAndMovePhotos() : jobs.removeAllListeners() ;
+        break;
+      case 'converted':
+        console.log('conversion done: ', obj.converted);
+        jobs.addLocation();
+        break;
+      case 'location':
+        console.log('location added: ', obj.location);
+        jobs.createPhotos();
+        break;
+      case 'mongo':
+        console.log('photos created: ', obj.mongo);
+        jobs.removeAllListeners();
+        break;
+      default:
+        break;
+    }
+  }
 
 })
 

@@ -32,10 +32,10 @@ const jobHandler = function() {
 
         switch( this.infoType ) {
             case 'exif':
-                this.files.length == 0 ? this.emit( this.infoType, this.exifAdded) : this.exifHandler( this.files.shift(), this.buildDocument );
+                this.files.length == 0 ? this.emit( 'done', { 'exif' : this.exifAdded }) : this.exifHandler( this.files.shift(), this.buildDocument );
                 break;
             case 'location':
-                this.exifAdded.length == 0 ? this.emit( this.infoType, this.exifAndLocationAdded ) : this.googleApiHandler( this.exifAdded.shift(), this.buildDocument );
+                this.exifAdded.length == 0 ? this.emit( 'done', { 'location': this.exifAndLocationAdded }) : this.googleApiHandler( this.exifAdded.shift(), this.buildDocument );
                 break;
             default:
                 this.emit( 'done' );
@@ -50,7 +50,7 @@ const jobHandler = function() {
             this.emit( 'error', error );
         }
 
-        this.files.length > 0 ? this.convertAndMove( this.files.shift(), this.convertMoveNext ) : this.emit( 'converted' ) ;
+        this.files.length > 0 ? this.convertAndMove( this.files.shift(), this.convertMoveNext ) : this.emit( 'done', { converted: true } ) ;
 
     }
 
@@ -62,11 +62,9 @@ jobHandler.prototype = new events.EventEmitter();
 jobHandler.prototype.detectNewPhotos = function () {
 
     this.detect( ( error, result ) => {
-        if ( error ) {
-            this.emit( 'error', error );
-        } else {
-            this.emit( 'photos', result );
-        }
+
+        error ? this.emit('error', error ) : result.length > 0 ? this.emit('done', { photos: result }) : this.emit('done', { photos: null} );
+
     });
 
     return this;
@@ -108,10 +106,10 @@ jobHandler.prototype.createPhotos = function () {
 
     this.mongoHandler( this.exifAndLocationAdded )
         .then( ( result ) => {
-            this.emit( 'mongo', result );
+            this.emit( 'done', { mongo: result });
         })
         .catch( ( error ) => {
-            this.emit( 'error', error );
+            this.emit( 'error', error.errmsg );
         })
 }
 
