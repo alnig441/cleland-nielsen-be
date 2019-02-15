@@ -8,6 +8,7 @@ const options = { quality: 100 };
 const readdir = util.promisify(fs.readdir);
 const access = util.promisify(fs.access);
 const rename = util.promisify(fs.rename);
+const append = util.promisify(fs.appendFile);
 
 const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/WD-USB-DISK' : process.env.PHOTOS_MOUNT_POINT;
 
@@ -23,7 +24,7 @@ const fileJobs = {
                 stepThrough();
             })
             .catch(( error ) => {
-                console.log( error );
+                cbToJobHandler(error);
             })
 
         function stepThrough() {
@@ -104,6 +105,8 @@ function convertFile ( buffer, pngFile ) {
 
 function moveFile ( file, wasRotated, callback ) {
 
+    wasRotated ? writeToLog(`\nINFO:\t${file} was rotated`) : null;
+
     let split = file.split(' ');
     let joined = split.join('\\ ');
 
@@ -129,13 +132,11 @@ function findFile ( file, cbToStepThrough ) {
     access( path, fs.constants.W_OK )
         .then(( data ) => {
             if (!data) {
-                console.log(`file ${file} exists - renaming`);
                 renameFile(file, cbToStepThrough);
             }
         })
         .catch((err) => {
             if (err.code == 'ENOENT') {
-                console.log(`file ${file} does not exist - please continue`);
                 cbToStepThrough();
             }
         })
@@ -148,10 +149,11 @@ function renameFile ( file, cbToStepThrough ) {
 
     rename(from, to)
         .then((result) => {
+            writeToLog(`\nINFO:\t${file} was renamed!`);
             cbToStepThrough();
         })
         .catch((err) => {
-            console.log('error renaming ', err);
+            writeToLog(`\nERROR:\t${err}`)
         })
 
 }
@@ -162,6 +164,21 @@ function getFiles () {
     return readdir(path);
 }
 
+function writeToLog ( message ) {
 
+    append( '.photoapp-log', message )
+        .then( () => {
+            return null;
+        } )
+
+}
+
+function writeToLog ( message ) {
+
+    append( '.photoapp-log', message )
+        .then(() => {
+            return null;
+        })
+}
 
 module.exports = fileJobs;

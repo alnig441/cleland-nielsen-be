@@ -1,3 +1,6 @@
+const fs = require('fs');
+const util = require('util');
+const append = util.promisify(fs.appendFile);
 const fastExif = require('fast-exif');
 const mongoose = require('mongoose');
 const paginate = require('mongoose-paginate');
@@ -23,7 +26,7 @@ const exifJobs = {
                     cbToJobHandler( null, extractData( result, photo ) );
 
                 } else {
-
+                    writeToLog(`\nINFO:\tNo exif data for ${file}`);
                     cbToJobHandler( null, null );
 
                 }
@@ -83,6 +86,14 @@ function convertCoordinates ( data ) {
     })
 
     return conversion = isNegative ? '-' + conversion.toString(): conversion.toString() ;
+}
+
+function writeToLog ( message ) {
+
+    append( '.photoapp-log', message )
+        .then(() => {
+            return null;
+        })
 }
 
 module.exports = exifJobs.default;

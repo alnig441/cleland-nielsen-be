@@ -6,6 +6,7 @@ const logger = require('morgan');
 const mongoose = require('mongoose');
 const jobHandler = require('./app_modules/job_handler');
 const cron = require('node-cron');
+const fs = require('fs');
 require('dotenv').config({path: path.join(__dirname, '.env')});
 
 let jobs = new jobHandler();
@@ -77,11 +78,17 @@ app.use(function(err, req, res, next) {
 
 cron.schedule(process.env.SCHEDULE, () => {
 
+  const logFile = '.photoapp-log';
+
+  fs.writeFile(logFile, `BEGIN: ${new Date()}`, (err) => {
+    return null;
+  });
+
   jobs.on( 'done', done );
 
   jobs.on( 'error', ( error ) => {
-    console.log('there was an error: ', error);
-    jobs.removeAllListeners();
+    writeToLog( `\nERROR:\t${error}` );
+    removeListeners( false );
   })
 
   jobs.detectNewPhotos();
@@ -90,28 +97,40 @@ cron.schedule(process.env.SCHEDULE, () => {
 
     switch ( Object.keys(obj)[0] ) {
       case 'photos':
-        console.log('files found: ', obj.photos);
-        obj.photos ? jobs.addExif(obj.photos) : jobs.removeAllListeners();
+        writeToLog(`\nINFO:\t${obj.photos.length} new files in /photoapptemp`);
+        obj.photos ? jobs.addExif(obj.photos) : removeListeners( false );
         break;
       case 'exif':
-        console.log('exif added: ', obj.exif);
-        obj.exif ? jobs.convertAndMovePhotos() : jobs.removeAllListeners() ;
+        writeToLog(`\nINFO:\tExif extracted from ${obj.exif} files`);
+        obj.exif ? jobs.convertAndMovePhotos() : removeListeners( false ) ;
         break;
       case 'converted':
-        console.log('conversion done: ', obj.converted);
+        writeToLog(`\nINFO:\tFiles converted and moved`)
         jobs.addLocation();
         break;
       case 'location':
-        console.log('location added: ', obj.location);
+        writeToLog(`\nINFO:\tLocation added to ${obj.location} files`);
         jobs.createPhotos();
         break;
       case 'mongo':
-        console.log('photos created: ', obj.mongo);
-        jobs.removeAllListeners();
+        writeToLog(`\nINFO:\t${obj.mongo.length} photos added to db`);
+        removeListeners( true );
         break;
       default:
+        removeListeners();
         break;
     }
+  }
+
+  function removeListeners ( completed ) {
+    completed ? writeToLog(`\nEND:\tSchedule completed`): writeToLog(`\nEND:\tSchedule terminated`);
+    jobs.removeAllListeners();
+  }
+
+  function writeToLog ( message ) {
+    fs.appendFile( logFile, message, ( err ) => {
+      return null;
+    } )
   }
 
 })

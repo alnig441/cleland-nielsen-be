@@ -1,3 +1,6 @@
+const fs = require('fs');
+const util = require('util');
+const append = util.promisify(fs.appendFile);
 const events = require('events');
 const fileHandler = require('./file_jobs');
 const exifHandler = require('./exif_jobs');
@@ -32,12 +35,13 @@ const jobHandler = function() {
 
         switch( this.infoType ) {
             case 'exif':
-                this.files.length == 0 ? this.emit( 'done', { 'exif' : this.exifAdded }) : this.exifHandler( this.files.shift(), this.buildDocument );
+                this.files.length == 0 ? this.emit( 'done', { 'exif' : this.exifAdded.length }) : this.exifHandler( this.files.shift(), this.buildDocument );
                 break;
             case 'location':
-                this.exifAdded.length == 0 ? this.emit( 'done', { 'location': this.exifAndLocationAdded }) : this.googleApiHandler( this.exifAdded.shift(), this.buildDocument );
+                this.exifAdded.length == 0 ? this.emit( 'done', { 'location': this.exifAndLocationAdded.length }) : this.googleApiHandler( this.exifAdded.shift(), this.buildDocument );
                 break;
             default:
+                writeToLog(`\nINFO:\tUnhandled DONE emitted for ${this.infoType}`);
                 this.emit( 'done' );
                 break;
         }
@@ -105,11 +109,19 @@ jobHandler.prototype.addLocation = function () {
 jobHandler.prototype.createPhotos = function () {
 
     this.mongoHandler( this.exifAndLocationAdded )
-        .then( ( result ) => {
+        .then(( result ) => {
             this.emit( 'done', { mongo: result });
         })
-        .catch( ( error ) => {
+        .catch(( error ) => {
             this.emit( 'error', error.errmsg );
+        })
+}
+
+function writeToLog ( message ) {
+
+    append( '.photoapp-log', message )
+        .then(() => {
+            return null;
         })
 }
 
