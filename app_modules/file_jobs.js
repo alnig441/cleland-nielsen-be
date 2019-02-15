@@ -166,19 +166,11 @@ function getFiles () {
 
 function writeToLog ( message ) {
 
-    append( '.photoapp-log', message )
+    append( '.schedule-log', message )
         .then( () => {
             return null;
         } )
 
-}
-
-function writeToLog ( message ) {
-
-    append( '.photoapp-log', message )
-        .then(() => {
-            return null;
-        })
 }
 
 module.exports = fileJobs;

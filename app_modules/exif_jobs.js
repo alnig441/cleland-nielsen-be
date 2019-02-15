@@ -90,7 +90,7 @@ function convertCoordinates ( data ) {
 
 function writeToLog ( message ) {
 
-    append( '.photoapp-log', message )
+    append( '.schedule-log', message )
         .then(() => {
             return null;
         })

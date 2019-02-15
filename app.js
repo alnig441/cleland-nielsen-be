@@ -78,9 +78,9 @@ app.use(function(err, req, res, next) {
 
 cron.schedule(process.env.SCHEDULE, () => {
 
-  const logFile = '.photoapp-log';
+  const logFile = '.schedule-log';
 
-  fs.writeFile(logFile, `BEGIN: ${new Date()}`, (err) => {
+  fs.writeFile(logFile, `BEGIN:\t${new Date()}`, (err) => {
     return null;
   });
 
