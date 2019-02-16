@@ -7,7 +7,6 @@ const mongoose = require('mongoose');
 const jobHandler = require('./app_modules/job_handler');
 const cron = require('node-cron');
 const fs = require('fs');
-require('dotenv').config({path: path.join(__dirname, '.env')});
 
 let jobs = new jobHandler();
 
