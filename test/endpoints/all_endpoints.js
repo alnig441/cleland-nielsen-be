@@ -126,17 +126,23 @@ describe('Photo: models', function () {
 
     describe('#update() by id', function () {
         it('should update a single Photo by id', function ( done ) {
-            console.log('not defined yet')
-            done();
+
+            Photo.findOneAndUpdate({ _id: _id }, { $set : { "meta.venue" : "somewhere nice" }}, function (error, result) {
+                should.not.exist( error );
+                should.exist( result ) ;
+
+                done();
+            })
         });
     })
 
     describe('#delete() by id', function () {
         it('should delete a single Photo by id', function ( done ) {
 
-            Photo.findByIdAndRemove({_id: _id}, function ( error ) {
+            Photo.findByIdAndRemove({_id: _id}, function ( error, result ) {
                 should.not.exist( error );
-                // result._id.should.equal(_id);
+                should.exist( result );
+
                 done();
             })
         });
