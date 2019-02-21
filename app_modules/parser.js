@@ -18,23 +18,33 @@ parser = {
                         !query.date ? query.date = {[element]: parseInt(request[element])} : query.date[element] = parseInt(request[element]);
                         break;
                     case 'city':
-                        !query.location ? query.location = {[element]: request[element]} : query.date[element] = request[element];
+                        !query.location ? query.location = {[element]: request[element]} : query.location[element] = request[element];
                         break;
                     case 'state':
-                        !query.location ? query.location = {[element]: request[element]} : query.date[element] = request[element];
+                        !query.location ? query.location = {[element]: request[element]} : query.location[element] = request[element];
                         break;
                     case 'country':
-                        !query.location ? query.location = {[element]: request[element]} : query.date[element] = request[element];
+                        !query.location ? query.location = {[element]: request[element]} : query.location[element] = request[element];
                         break;
                     case 'venue':
-                        !query.meta ? query.meta = {[element]: request[element]} : query.date[element] = request[element];
+                        !query.meta ? query.meta = {[element]: request[element]} : query.meta[element] = request[element];
                         break;
                     case 'occasion':
-                        !query.meta ? query.meta = {[element]: request[element]} : query.date[element] = request[element];
+                        !query.meta ? query.meta = {[element]: request[element]} : query.meta[element] = request[element];
                         break;
                     case 'names':
                         let names = splitAndTrim(request[element]);
-                        !query.meta ? query.meta = {[element]: names} : query.date[element] = names;
+                        !query.meta ? query.meta = {[element]: names} : query.meta[element] = names;
+                        break;
+                    case 'keywords':
+                        let keywords = splitAndTrim(request[element]);
+                        !query.meta ? query.meta = {[element]: keywords} : query.meta[element] = keywords;
+                        break;
+                    case 'da':
+                        !query.meta ? query.meta = {[element] : { da: request[elem].da }} : query.meta[element] = { da: request[element].da };
+                        break;
+                    case 'en':
+                        !query.meta ? query.meta = {[element] : { en: request[elem].en }} : query.meta[element] = { en: request[element].en };
                         break;
                     case 'fileName':
                         !query.image ? query.image = {[element]: request[element]} : query.date[element] = request[element];
@@ -70,6 +80,9 @@ parser = {
                         return  query = { "date.month" : parseInt(request[key])};
                     case 'year':
                         return  query = { "date.year" : parseInt(request[key]) };
+                    case 'keywords':
+                        let keywords = splitAndTrim(request[key]);
+                        return query = { $push: {"meta.keywords": keywords }};
                     case 'names':
                         let names = splitAndTrim(request[key]);
                         return  query = { $push: {"meta.names" : names }};
@@ -77,6 +90,10 @@ parser = {
                         return  query = { "meta.venue" : request[key] };
                     case 'occasion':
                         return  query = { "meta.occasion" : request[key] };
+                    case 'da':
+                        return query = { "meta.event.da" : request[key] };
+                    case 'en':
+                        return query = { "meta.event.en": request[key] };
                     case 'fileName':
                         return  query = { "image.fileName" : request[key] };
                     case 'thumbnail':
@@ -117,6 +134,9 @@ parser = {
                     case 'year':
                         query.push({ "date.year" : parseInt(request[key]) });
                         break;
+                    case 'keywords':
+                        let keywords = splitAndTrim(request[key]);
+                        query.push({ "meta.keywords" : {$in : keywords }})
                     case 'names':
                         let names = splitAndTrim(request[key]);
                         query.push({ "meta.names" : {$in : names }});

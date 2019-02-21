@@ -23,23 +23,23 @@ router.post('/UpdateById/:_id?/Photos',(req, res, next) => {
         updatePhoto(result);
     }
 
-    function updatePhoto(field) {
+    function updatePhoto ( field ) {
         Photo.findOneAndUpdate({_id: req.params._id}, field.value)
-            .then((photo) => {
-                if (!field.done) {
+            .then(( photo ) => {
+                if ( !field.done ) {
                     parseIncoming();
                 } else {
                     res.render('results', { docs: photo, endpoint: 'photos', method: 'updated'});
                 }
             })
-            .catch((error) => {
+            .catch(( error ) => {
                 res.render('error', { message: error });
             })
     }
 
-    function* stepThrough(object_in) {
+    function* stepThrough ( object_in ) {
         let i = 0;
-        let keys = Object.keys(object_in);
+        let keys = Object.keys( object_in );
 
         while(i <= keys.length -1) {
             i++;
@@ -48,7 +48,7 @@ router.post('/UpdateById/:_id?/Photos',(req, res, next) => {
             yield parser.parseUpdateQuery(object_out);
         }
 
-        return
+        return;
     }
 })
 
