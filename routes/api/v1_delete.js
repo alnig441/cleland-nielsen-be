@@ -11,9 +11,9 @@ const User = mongoose.model('User', userSchema);
 
 router.delete('/RemoveById/:_id?/Photos', (req, res, next) => {
 
-    console.log(req.params);
+    let query = req.params._id ? req.params : req.query;
 
-    Photo.findByIdAndRemove( req.params )
+    Photo.findByIdAndRemove( query )
         .then((result) => {
             res.render('results', { docs: result, endpoint: 'photos', method: 'removed'});
         })

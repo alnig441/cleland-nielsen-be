@@ -13,7 +13,9 @@ const User = mongoose.model('User', userSchema);
 
 router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 
-    Photo.paginate(req.params)
+    let query = req.params._id ? req.params : req.query;
+
+    Photo.paginate(query)
         .then((result) => {
             res.render('results', {docs: result, endpoint: 'photos'})
         })
@@ -45,7 +47,19 @@ router.get('/Search/Photos?', (req, res, next) => {
 
 })
 
-router.get('/BuildView/Photos')
+router.get('/Distinct/:year?/Photos', (req, res, next) => {
 
+  let query = req.params.year ? { 'date.year' : parseInt(req.params.year) } : req.query.year ? { 'date.year': req.query.year }: {} ;
+  let key = query.hasOwnProperty('date.year') ? 'date.month' : 'date.year';
+
+  Photo.distinct(key, query)
+    .then((result) => {
+      res.status(200).send(result);
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+
+})
 
 module.exports = router;
