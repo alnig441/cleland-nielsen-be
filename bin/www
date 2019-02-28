@@ -8,7 +8,7 @@ const app = require('../app');
 const debug = require('debug')('photoapp-mongo-api:server');
 const http = require('http');
 const hostName = process.env.NODE_ENV === 'production' ? "0.0.0.0": "localhost";
-const port = process.env.NODE_ENV === "production" ? normalizePort(process.env.PORT) : "3000";
+const port = process.env.NODE_ENV === "production" ? normalizePort(process.env.PORT) : "4000";
 
 /**
  * Get port from environment and store in Express.
@@ -88,4 +88,5 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+  console.info(`==> 🌎 Listening on port ${port}. Open up http://${hostName}:${port}/ in your browser.`);
 }
