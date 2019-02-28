@@ -15,7 +15,15 @@ router.delete('/RemoveById/:_id?/Photos', (req, res, next) => {
 
     Photo.findByIdAndRemove( query )
         .then((result) => {
-            res.render('results', { docs: result, endpoint: 'photos', method: 'removed'});
+          if ( req.accepts().includes('*/*') || req.accepts().includes('text/html') ) {
+            res.render('results', {docs: result, endpoint: 'photos'})
+          } else {
+            res.format({
+              json: () => {
+                res.send(result);
+              }
+            })
+          }
         })
         .catch((error) => {
             res.render('error', { message: error.message})

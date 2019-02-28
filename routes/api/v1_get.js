@@ -17,7 +17,15 @@ router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 
     Photo.paginate(query)
         .then((result) => {
+          if ( req.accepts().includes('*/*') || req.accepts().includes('text/html') ) {
             res.render('results', {docs: result, endpoint: 'photos'})
+          } else {
+            res.format({
+              json: () => {
+                res.send(result);
+              }
+            })
+          }
         })
         .catch((error) => {
             res.render('error', { message: error})
@@ -39,10 +47,18 @@ router.get('/Search/Photos?', (req, res, next) => {
 
     Photo.paginate( query , options )
         .then((result) => {
-            res.render('results', {docs: result, endpoint: 'photos'})
+          if ( req.accepts().includes('*/*') || req.accepts().includes('text/html') ) {
+            res.render('results', { docs: result, endpoint: 'photos'});
+          } else {
+            res.format({
+              json: () => {
+                res.send( result );
+              }
+            })
+          }
         })
         .catch((error) => {
-            res.render('results', {result: error})
+            res.render('results', { result: error })
         })
 
 })
@@ -57,7 +73,7 @@ router.get('/Distinct/:year?/Photos', (req, res, next) => {
       res.status(200).send(result);
     })
     .catch((error) => {
-      console.log(error);
+      res.render('error', { result: error });
     })
 
 })

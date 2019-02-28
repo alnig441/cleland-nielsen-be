@@ -29,7 +29,15 @@ router.post('/UpdateById/:_id?/Photos',(req, res, next) => {
                 if ( !field.done ) {
                     parseIncoming();
                 } else {
-                    res.render('results', { docs: photo, endpoint: 'photos', method: 'updated'});
+                  if ( req.accepts().includes('*/*') || req.accepts().includes('text/html') ) {
+                    res.render('results', {docs: photo, endpoint: 'photos'})
+                  } else {
+                    res.format({
+                      json: () => {
+                        res.send(photo);
+                      }
+                    })
+                  }
                 }
             })
             .catch(( error ) => {
