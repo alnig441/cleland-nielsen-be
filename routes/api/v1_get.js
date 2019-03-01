@@ -36,12 +36,7 @@ router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 router.get('/Search/Photos?', (req, res, next) => {
 
     let options = { page: parseInt(req.query.page) || undefined , limit: parseInt(process.env.LIMIT) };
-    let doAnd;
-
-    //detect if album view year/month
-    if (req.query.hasOwnProperty('year') && req.query.hasOwnProperty('month') && req.query.hasOwnProperty('page')) {
-        doAnd = true;
-    }
+    let doAnd = req.query.all ? true: false ;
 
     let query = parser.parseSearchQuery(req.query, doAnd);
 
