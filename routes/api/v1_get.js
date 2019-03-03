@@ -63,6 +63,10 @@ router.get('/Distinct/:year?/Photos', (req, res, next) => {
 
   Photo.distinct(key, query)
     .then((result) => {
+      result = result.filter( elem => {
+        return elem != null;
+      })
+      result = key == 'date.month' ? sortArray(result) : result.sort();
       res.status(200).send(result);
     })
     .catch((error) => {
@@ -70,5 +74,15 @@ router.get('/Distinct/:year?/Photos', (req, res, next) => {
     })
 
 })
+
+function sortArray (array) {
+  let arr1 = array.filter(elem => {
+    return elem < 10;
+  })
+  let arr2 = array.filter(elem => {
+    return elem >= 10;
+  })
+  return arr1.sort().concat(arr2.sort());
+}
 
 module.exports = router;
