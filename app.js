@@ -75,7 +75,7 @@ app.use(function(err, req, res, next) {
 });
 
 
-cron.schedule(process.env.SCHEDULE, () => {
+process.env.SCHEDULE ? cron.schedule(process.env.SCHEDULE, () => {
 
   const logFile = '.schedule-log';
 
@@ -132,7 +132,7 @@ cron.schedule(process.env.SCHEDULE, () => {
     } )
   }
 
-})
+}) : null;
 
 
 module.exports = app;
