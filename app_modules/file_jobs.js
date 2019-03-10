@@ -10,7 +10,7 @@ const access = util.promisify(fs.access);
 const rename = util.promisify(fs.rename);
 const append = util.promisify(fs.appendFile);
 
-const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/WD-USB-DISK' : process.env.PHOTOS_MOUNT_POINT;
+const baseUrl = process.env.NODE_ENV == 'development' ? 'public/test/' : process.env.PHOTOS_MOUNT_POINT;
 
 const fileJobs = {
 
@@ -57,13 +57,22 @@ const fileJobs = {
 
     convertAndMovePhotos: function ( file, cbToJobHandler ) {
 
-        let pngFile = file.replace( /jp?g/i, 'png' );
+        let saveAs, fileName;
 
-        jo.rotate(`${baseUrl}/photoapptemp/${file}`, options, ( error, buffer ) => {
+        if (typeof file == 'object') {
+          saveAs = file.saveAs;
+          fileName = file.fileName;
+        } else {
+          fileName = saveAs = file;
+        }
+
+        let pngFile = saveAs.replace( /jp?g/i, 'png');
+
+        jo.rotate(`${baseUrl}/photoapptemp/${fileName}`, options, ( error, buffer ) => {
             let wasRotated = error ? false : true;
 
             if ( !error ) {
-                saveFile( buffer, file )
+                saveFile( buffer, saveAs )
                     .then( () => {
                         return null;
                     })
@@ -107,13 +116,19 @@ function moveFile ( file, wasRotated, callback ) {
 
     wasRotated ? writeToLog(`\nINFO:\t${file} was rotated`) : null;
 
-    let split = file.split(' ');
-    let joined = split.join('\\ ');
+    let source, destination;
+
+    if ( typeof file == 'object') {
+      source = file.fileName.split(' ').join('\\ ');
+      destination = file.saveAs.split(' ').join('\\ ');
+    } else {
+      source = destination = file.split(' ').join('\\ ');
+    }
 
     let execStr =
         wasRotated ?
-            `mv ${baseUrl}/photoapptemp/${joined} ${baseUrl}/James/${joined.replace(/jp?g/i, ( match ) => { return 'original.' + match } )}`:
-            `mv ${baseUrl}/photoapptemp/${joined} ${baseUrl}/James`;
+            `mv ${baseUrl}/photoapptemp/${source} ${baseUrl}/James/${destination.replace(/jp?g/i, ( match ) => { return 'original.' + match } )}`:
+            `mv ${baseUrl}/photoapptemp/${source} ${baseUrl}/James/${destination}`;
 
     exec(execStr, ( err, stdout, stdin ) => {
         if( !err ){

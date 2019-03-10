@@ -7,6 +7,8 @@ const googleJobs = {
 
     getApiData: function ( data, cbToJobHandler ) {
 
+        console.log('goooooogle document: ', Object.values(data.gps));
+
         let timestamp = Date.parse( data.document.created );
 
         let URIs = [
@@ -14,7 +16,7 @@ const googleJobs = {
             { offset    : `${timeZoneApi}location=${data.gps.latitude},${data.gps.longitude}&timestamp=${timestamp.toString().slice(0,10)}&key=${key}` }
         ]
 
-        data.gps ? doGetApiData() : cbToJobHandler( null, data.document ) ;
+        Object.values(data.gps).length > 0 ? doGetApiData() : cbToJobHandler( null, data.document ) ;
 
         function doGetApiData ( err, res ) {
             let api =

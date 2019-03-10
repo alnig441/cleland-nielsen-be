@@ -74,6 +74,7 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+!process.env.RESTORE ? console.log('not restoring!') : console.log('restoring!');
 
 process.env.SCHEDULE ? cron.schedule(process.env.SCHEDULE, () => {
 
@@ -96,7 +97,7 @@ process.env.SCHEDULE ? cron.schedule(process.env.SCHEDULE, () => {
 
     switch ( Object.keys(obj)[0] ) {
       case 'photos':
-        writeToLog(`\nINFO:\t${obj.photos || 0} new files in /photoapptemp`);
+        writeToLog(`\nINFO:\t${obj.photos.length || 0} new files in /photoapptemp`);
         obj.photos ? jobs.addExif(obj.photos) : removeListeners( false );
         break;
       case 'exif':
@@ -105,7 +106,7 @@ process.env.SCHEDULE ? cron.schedule(process.env.SCHEDULE, () => {
         break;
       case 'converted':
         writeToLog(`\nINFO:\tFiles converted and moved`)
-        jobs.addLocation();
+        !process.env.RESTORE ? jobs.addLocation(): removeListeners(true);
         break;
       case 'location':
         writeToLog(`\nINFO:\tLocation added to ${obj.location} files`);

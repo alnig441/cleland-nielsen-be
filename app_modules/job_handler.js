@@ -25,8 +25,13 @@ const jobHandler = function() {
 
     this.buildDocument = ( error, document ) => {
 
-        document ? document.gps ? this.exifAdded.push( document ) : this.exifAndLocationAdded.push( document ) : null;
-
+        if ( process.env.RESTORE ){
+          let obj = { };
+          document != 'object' ? obj[document] = document : null ;
+          document ? document.originalNameAlternateName ? this.exifAdded.push(document.originalNameAlternateName) : this.exifAdded.push(obj) : null;
+        } else{
+          document ? document.gps ? this.exifAdded.push( document ) : this.exifAndLocationAdded.push( document ) : null;
+        }
         error ? this.emit( 'error', error ) : this.procede();
 
     };
@@ -54,7 +59,7 @@ const jobHandler = function() {
             this.emit( 'error', error );
         }
 
-        this.files.length > 0 ? this.convertAndMove( this.files.shift(), this.convertMoveNext ) : this.emit( 'done', { converted: true } ) ;
+        this.files.length > 0 ? this.convertAndMove( this.files.shift(), this.convertMoveNext ) : this.emit( 'done', { converted: true }) ;
 
     }
 
@@ -74,13 +79,28 @@ jobHandler.prototype.detectNewPhotos = function () {
     return this;
 }
 
-jobHandler.prototype.convertAndMovePhotos = function () {
+jobHandler.prototype.convertAndMovePhotos = function ( files ) {
 
-    this.exifAdded.forEach( ( element, index ) => {
-        this.files.push( element.document.image.fileName );
-    })
-
-    this.convertAndMove( this.files.shift(), this.convertMoveNext );
+    if ( process.env.RESTORE ) {
+      this.exifAdded.forEach((element, index, array) => {
+        this.photoExists(element, (error, foundInDB) => {
+          error ? this.this.emit('error', error): null;
+          foundInDB ?
+            this.files.push({ fileName: Object.keys(element)[0], saveAs: foundInDB}) && writeToLog(`\nINFO:\t${Object.keys(element)} exists as ${foundInDB}`):
+            writeToLog(`\nINFO:\t${Object.keys(element)[0]} not located in db ...`);
+          if ( index == array.length -1 ){
+            this.files.length > 0 ? this.convertAndMove( this.files.shift(), this.convertMoveNext ) : this.emit('done', { converted:true});
+          }
+        });
+      })
+    } else {
+      this.exifAdded.forEach( ( element, index, array ) => {
+        this.files.push( { fileName: Object.keys(element.originalNameAlternateName)[0] , saveAs: Object.values(element.originalNameAlternateName)[0] } )
+          if ( index == array.length -1 ){
+            this.files.length > 0 ? this.convertAndMove( this.files.shift(), this.convertMoveNext ) : this.emit('done', { converted:true});
+          }
+      });
+    }
 
     return this;
 }
@@ -106,9 +126,21 @@ jobHandler.prototype.addLocation = function () {
     return this;
 }
 
+jobHandler.prototype.photoExists = function ( file, cb ) {
+
+    this.mongoHandler.photoExistsInDB( file )
+      .then(result => {
+        let exists = result.length > 0 ? result[0].image.fileName : false;
+        cb(null, exists);
+      })
+      .catch( error => {
+        this.emit('error', error);
+      })
+}
+
 jobHandler.prototype.createPhotos = function () {
 
-    this.mongoHandler( this.exifAndLocationAdded )
+    this.mongoHandler.createPhotos( this.exifAndLocationAdded )
         .then(( result ) => {
             this.emit( 'done', { mongo: result });
         })
