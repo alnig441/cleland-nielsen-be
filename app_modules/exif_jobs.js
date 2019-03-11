@@ -9,7 +9,7 @@ photoSchema.plugin(paginate);
 
 const Photo = mongoose.model('photo', photoSchema);
 
-const baseUrl = process.env.NODE_ENV == 'development' ? 'public/test/photoapptemp/' : process.env.PHOTOS_MOUNT_POINT + '/photoapptemp/';
+const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/share/photos/photoapptemp/' : process.env.PHOTOS_MOUNT_POINT + '/photoapptemp/';
 
 const exifJobs = {
 
@@ -94,10 +94,14 @@ function findExifFieldValue(exifData, field) {
 
   if ( keys.length > 0 ) {
     keys.forEach((elem) => {
-      value = exifData[elem].hasOwnProperty(field) ? exifData[elem][field]: null;
+      if ( exifData[elem].hasOwnProperty(field) ) {
+        value = exifData[elem][field];
+      }
     })
   } else {
-    value = exifData.hasOwnProperty(field) ? exifData[field]: null;
+    if ( exifData.hasOwnProperty(field) ){
+      value = exifData[field];
+    }
   }
 
   return value;

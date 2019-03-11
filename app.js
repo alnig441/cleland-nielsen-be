@@ -74,8 +74,6 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-!process.env.RESTORE ? console.log('not restoring!') : console.log('restoring!');
-
 process.env.SCHEDULE ? cron.schedule(process.env.SCHEDULE, () => {
 
   const logFile = '.schedule-log';
