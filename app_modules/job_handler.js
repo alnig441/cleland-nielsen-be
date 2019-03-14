@@ -149,6 +149,12 @@ jobHandler.prototype.createPhotos = function () {
         })
 }
 
+jobHandler.prototype.clearRegisters = function () {
+  this.files = [];
+  this.exifAdded = [];
+  this.exifAndLocationAdded = [];
+}
+
 function writeToLog ( message ) {
 
     append( '.schedule-log', message )

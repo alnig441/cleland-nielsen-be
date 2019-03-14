@@ -10,7 +10,7 @@ const access = util.promisify(fs.access);
 const rename = util.promisify(fs.rename);
 const append = util.promisify(fs.appendFile);
 
-const baseUrl = process.env.NODE_ENV == 'development' ? 'public/test/' : process.env.PHOTOS_MOUNT_POINT;
+const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/WD-USB-DISK' : process.env.PHOTOS_MOUNT_POINT;
 
 const fileJobs = {
 
@@ -20,6 +20,9 @@ const fileJobs = {
 
         getFiles()
             .then( ( files ) => {
+                files = files.filter( file => {
+                  return !file.match(/\._/);
+                })
                 goTo = next( files );
                 stepThrough();
             })

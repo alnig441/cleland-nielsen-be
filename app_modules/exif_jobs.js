@@ -9,7 +9,7 @@ photoSchema.plugin(paginate);
 
 const Photo = mongoose.model('photo', photoSchema);
 
-const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/share/photos/photoapptemp/' : process.env.PHOTOS_MOUNT_POINT + '/photoapptemp/';
+const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/WD-USB-DISK/photoapptemp/' : process.env.PHOTOS_MOUNT_POINT + '/photoapptemp/';
 
 const exifJobs = {
 
@@ -45,8 +45,9 @@ const exifJobs = {
 
 function convertDateTimeOriginal ( timestamp ) {
   timestamp = timestamp.toISOString();
-  timestamp = timestamp.split('.')[0].replace(/t/i, ' ').replace(/:/g, '.') + '.jpg';
-  return timestamp;
+  let newFileName = timestamp.split('.')[0].replace(/t/i, ' ').replace(/:/g, '.') + '.jpg';
+  console.log('newFileName: ', newFileName)
+  return newFileName;
 }
 
 function extractData ( exifData, document ) {
@@ -71,10 +72,10 @@ function extractData ( exifData, document ) {
 
 
     if ( process.env.RESTORE || doRename ) {
-      let saveAs = convertDateTimeOriginal(dateTimeOriginal);
+      let saveAs = dateTimeOriginal ? convertDateTimeOriginal(dateTimeOriginal) : undefined;
 
       originalNameAlternateName[document.image.fileName] = dateTimeOriginal ?
-        saveAs:
+        saveAs :
         null ;
 
       doRename ?
@@ -94,14 +95,10 @@ function findExifFieldValue(exifData, field) {
 
   if ( keys.length > 0 ) {
     keys.forEach((elem) => {
-      if ( exifData[elem].hasOwnProperty(field) ) {
-        value = exifData[elem][field];
-      }
+      exifData[elem].hasOwnProperty(field) ? value = exifData[elem][field] : null;
     })
   } else {
-    if ( exifData.hasOwnProperty(field) ){
-      value = exifData[field];
-    }
+    exifData.hasOwnProperty(field) ? value = exifData[field] : null;
   }
 
   return value;

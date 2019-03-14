@@ -82,6 +82,8 @@ process.env.SCHEDULE ? cron.schedule(process.env.SCHEDULE, () => {
     return null;
   });
 
+  jobs.clearRegisters();
+
   jobs.on( 'done', done );
 
   jobs.on( 'error', ( error ) => {
@@ -95,8 +97,13 @@ process.env.SCHEDULE ? cron.schedule(process.env.SCHEDULE, () => {
 
     switch ( Object.keys(obj)[0] ) {
       case 'photos':
-        writeToLog(`\nINFO:\t${obj.photos.length || 0} new files in /photoapptemp`);
-        obj.photos ? jobs.addExif(obj.photos) : removeListeners( false );
+        let files;
+        obj.photos ? files = obj.photos.filter((file) => {
+          return !file.match(/\._/);
+        }) : null;
+        writeToLog(`\nINFO:\t${files.length || 0} new files in /photoapptemp`);
+
+        obj.photos ? jobs.addExif(files) : removeListeners( false );
         break;
       case 'exif':
         writeToLog(`\nINFO:\tExif extracted from ${obj.exif} files`);
