@@ -20,11 +20,16 @@ const fileJobs = {
 
         getFiles()
             .then( ( files ) => {
+              if ( files.length == 0 ) {
+                cbToJobHandler(null, files);
+              }
+              else {
                 files = files.filter( file => {
                   return !file.match(/\._/);
                 })
                 goTo = next( files );
                 stepThrough();
+              }
             })
             .catch(( error ) => {
                 cbToJobHandler(error);

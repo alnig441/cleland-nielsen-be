@@ -7,8 +7,6 @@ const googleJobs = {
 
     getApiData: function ( data, cbToJobHandler ) {
 
-        console.log('goooooogle document: ', Object.values(data.gps));
-
         let timestamp = Date.parse( data.document.created );
 
         let URIs = [

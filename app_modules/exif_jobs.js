@@ -46,7 +46,6 @@ const exifJobs = {
 function convertDateTimeOriginal ( timestamp ) {
   timestamp = timestamp.toISOString();
   let newFileName = timestamp.split('.')[0].replace(/t/i, ' ').replace(/:/g, '.') + '.jpg';
-  console.log('newFileName: ', newFileName)
   return newFileName;
 }
 
