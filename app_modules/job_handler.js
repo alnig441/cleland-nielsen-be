@@ -25,14 +25,13 @@ const jobHandler = function() {
 
     this.buildDocument = ( error, document ) => {
 
-        if ( process.env.RESTORE ){
-          let obj = { };
-          document != 'object' ? obj[document] = document : null ;
-          document ? document.originalNameAlternateName ? this.exifAdded.push(document.originalNameAlternateName) : this.exifAdded.push(obj) : null;
-        } else{
-          document ? document.gps ? this.exifAdded.push( document ) : this.exifAndLocationAdded.push( document ) : null;
-        }
-        error ? this.emit( 'error', error ) : this.procede();
+      document.hasOwnProperty('gps') ?
+        Object.values(document.gps).length > 0 ?
+          this.exifAdded.push(document):
+          null:
+        this.exifAndLocationAdded.push(document);
+
+      error ? this.emit( 'error', error ) : this.procede();
 
     };
 
@@ -40,10 +39,14 @@ const jobHandler = function() {
 
         switch( this.infoType ) {
             case 'exif':
-                this.files.length == 0 ? this.emit( 'done', { 'exif' : this.exifAdded.length }) : this.exifHandler( this.files.shift(), this.buildDocument );
+                this.files.length == 0 ?
+                  this.emit( 'done', { 'exif' : this.exifAdded.length }) :
+                  this.exifHandler( this.files.shift(), this.buildDocument );
                 break;
             case 'location':
-                this.exifAdded.length == 0 ? this.emit( 'done', { 'location': this.exifAndLocationAdded.length }) : this.googleApiHandler( this.exifAdded.shift(), this.buildDocument );
+                this.exifAdded.length == 0 ?
+                  this.emit( 'done', { 'location': this.exifAndLocationAdded.length }) :
+                  this.googleApiHandler( this.exifAdded.shift(), this.buildDocument );
                 break;
             default:
                 writeToLog(`\nINFO:\tUnhandled DONE emitted for ${this.infoType}`);
@@ -81,26 +84,19 @@ jobHandler.prototype.detectNewPhotos = function () {
 
 jobHandler.prototype.convertAndMovePhotos = function ( files ) {
 
-    if ( process.env.RESTORE ) {
-      this.exifAdded.forEach((element, index, array) => {
-        this.photoExists(element, (error, foundInDB) => {
-          error ? this.this.emit('error', error): null;
-          foundInDB ?
-            this.files.push({ fileName: Object.keys(element)[0], saveAs: foundInDB}) && writeToLog(`\nINFO:\t${Object.keys(element)} exists as ${foundInDB}`):
-            writeToLog(`\nINFO:\t${Object.keys(element)[0]} not located in db ...`);
-          if ( index == array.length -1 ){
-            this.files.length > 0 ? this.convertAndMove( this.files.shift(), this.convertMoveNext ) : this.emit('done', { converted:true});
-          }
-        });
-      })
-    } else {
-      this.exifAdded.forEach( ( element, index, array ) => {
-        this.files.push( { fileName: Object.keys(element.originalNameAlternateName)[0] , saveAs: Object.values(element.originalNameAlternateName)[0] } )
-          if ( index == array.length -1 ){
-            this.files.length > 0 ? this.convertAndMove( this.files.shift(), this.convertMoveNext ) : this.emit('done', { converted:true});
-          }
-      });
-    }
+    this.exifAdded.forEach( ( element, index, array ) => {
+      Object.values(element.originalNameAlternateName).length > 0 ?
+        this.files.push({ fileName: Object.keys(element.originalNameAlternateName)[0], saveAs: Object.values(element.originalNameAlternateName)[0]}) :
+        this.files.push( element.document.image.fileName );
+
+      if ( index == array.length -1 ){
+        this.files.length > 0 ?
+          this.convertAndMove( this.files.shift(), this.convertMoveNext ) :
+          this.emit('done', { converted:true});
+      }
+
+    });
+
 
     return this;
 }

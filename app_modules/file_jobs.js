@@ -24,9 +24,6 @@ const fileJobs = {
                 cbToJobHandler(null, files);
               }
               else {
-                files = files.filter( file => {
-                  return !file.match(/\._/);
-                })
                 goTo = next( files );
                 stepThrough();
               }
@@ -67,7 +64,7 @@ const fileJobs = {
 
         let saveAs, fileName;
 
-        if (typeof file == 'object') {
+        if (typeof file == 'object' ) {
           saveAs = file.saveAs;
           fileName = file.fileName;
         } else {

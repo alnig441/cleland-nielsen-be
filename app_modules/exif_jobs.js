@@ -51,13 +51,14 @@ function convertDateTimeOriginal ( timestamp ) {
 
 function extractData ( exifData, document ) {
 
+  // console.log('gps data: ', exifData, document.image.fileName)
+
     let dateTimeOriginal = findExifFieldValue(exifData, 'DateTimeOriginal');
     let result = { document: document, gps: {}, originalNameAlternateName: {} };
     let originalNameAlternateName = { };
     let doRename = document.image.fileName.match(/_[0-9]{4}\./);
 
     if ( exifData.gps && exifData.gps.GPSLatitude ) {
-
         result.gps = {
             latitude    : convertCoordinates({ coordinate: exifData.gps.GPSLatitude, reference: exifData.gps.GPSLatitudeRef}),
             longitude   : convertCoordinates({ coordinate: exifData.gps.GPSLongitude, reference: exifData.gps.GPSLongitudeRef})
@@ -70,7 +71,7 @@ function extractData ( exifData, document ) {
     }
 
 
-    if ( process.env.RESTORE || doRename ) {
+    if ( doRename ) {
       let saveAs = dateTimeOriginal ? convertDateTimeOriginal(dateTimeOriginal) : undefined;
 
       originalNameAlternateName[document.image.fileName] = dateTimeOriginal ?

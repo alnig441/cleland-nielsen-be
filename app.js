@@ -97,13 +97,14 @@ process.env.SCHEDULE ? cron.schedule(process.env.SCHEDULE, () => {
 
     switch ( Object.keys(obj)[0] ) {
       case 'photos':
-        let files;
+        let files, length;
         obj.photos.length > 0 ?
           files = obj.photos.filter((file) => {
             return !file.match(/\._/);
           }) :
           null;
-        writeToLog(`\nINFO:\t${ obj.photos.length } new files in /photoapptemp`);
+        length = files ? files.length : 0;
+        writeToLog(`\nINFO:\t${ length } new files in /photoapptemp`);
         files ? jobs.addExif(files) : removeListeners( false );
         break;
       case 'exif':
@@ -112,7 +113,7 @@ process.env.SCHEDULE ? cron.schedule(process.env.SCHEDULE, () => {
         break;
       case 'converted':
         writeToLog(`\nINFO:\tFiles converted and moved`)
-        !process.env.RESTORE ? jobs.addLocation(): removeListeners(true);
+        jobs.addLocation();
         break;
       case 'location':
         writeToLog(`\nINFO:\tLocation added to ${obj.location} files`);
