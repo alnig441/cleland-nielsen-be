@@ -104,7 +104,7 @@ process.env.SCHEDULE ? cron.schedule(process.env.SCHEDULE, () => {
           }) :
           null;
         length = files ? files.length : 0;
-        writeToLog(`\nINFO:\t${ length } new files in /photoapptemp`);
+        writeToLog(`\nINFO:\t${ length } new files in /${process.env.APP_TMP_FOLDER}`);
         files ? jobs.addExif(files) : removeListeners( false );
         break;
       case 'exif':

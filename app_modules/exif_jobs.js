@@ -9,7 +9,7 @@ photoSchema.plugin(paginate);
 
 const Photo = mongoose.model('photo', photoSchema);
 
-const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/WD-USB-DISK/photoapptemp/' : process.env.PHOTOS_MOUNT_POINT + '/photoapptemp/';
+const baseUrl = process.env.NODE_ENV == 'development' ? `/Volumes/WD-USB-DISK/${process.env.APP_TMP_FOLDER}/` : `${process.env.PHOTOS_MOUNT_POINT}/${process.env.APP_TMP_FOLDER}/`;
 
 const exifJobs = {
 

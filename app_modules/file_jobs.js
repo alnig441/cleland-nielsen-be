@@ -11,6 +11,9 @@ const rename = util.promisify(fs.rename);
 const append = util.promisify(fs.appendFile);
 
 const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/WD-USB-DISK' : process.env.PHOTOS_MOUNT_POINT;
+const tmpFolder = process.env.APP_TMP_FOLDER,
+      pngFolder = process.env.APP_PNG_FOLDER,
+      origFolder = process.env.APP_ORIG_FOLDER;
 
 const fileJobs = {
 
@@ -73,7 +76,7 @@ const fileJobs = {
 
         let pngFile = saveAs.replace( /jp?g/i, 'png');
 
-        jo.rotate(`${baseUrl}/photoapptemp/${fileName}`, options, ( error, buffer ) => {
+        jo.rotate(`${baseUrl}/${tmpFolder}/${fileName}`, options, ( error, buffer ) => {
             let wasRotated = error ? false : true;
 
             if ( !error ) {
@@ -105,7 +108,7 @@ const fileJobs = {
 function saveFile ( buffer, file ) {
     return jimp.read( buffer )
         .then(image => {
-            image.writeAsync(`${baseUrl}/James/${file}`)
+            image.writeAsync(`${baseUrl}/${origFolder}/${file}`)
         })
 }
 
@@ -113,7 +116,7 @@ function convertFile ( buffer, pngFile ) {
     return jimp.read(buffer)
         .then(image => {
             image.resize(280, jimp.AUTO);
-            image.writeAsync(`${baseUrl}/photoapp/${pngFile}`)
+            image.writeAsync(`${baseUrl}/${pngFolder}/${pngFile}`)
         })
 }
 
@@ -121,19 +124,19 @@ function moveFile ( file, wasRotated, callback ) {
 
     wasRotated ? writeToLog(`\nINFO:\t${file} was rotated`) : null;
 
-    let source, destination;
+    let sourceName, destinationName;
 
     if ( typeof file == 'object') {
-      source = file.fileName.split(' ').join('\\ ');
-      destination = file.saveAs.split(' ').join('\\ ');
+      sourceName = file.fileName.split(' ').join('\\ ');
+      destinationName = file.saveAs.split(' ').join('\\ ');
     } else {
-      source = destination = file.split(' ').join('\\ ');
+      sourceName = destinationName = file.split(' ').join('\\ ');
     }
 
     let execStr =
         wasRotated ?
-            `mv ${baseUrl}/photoapptemp/${source} ${baseUrl}/James/${destination.replace(/jp?g/i, ( match ) => { return 'original.' + match } )}`:
-            `mv ${baseUrl}/photoapptemp/${source} ${baseUrl}/James/${destination}`;
+            `mv ${baseUrl}/${tmpFolder}/${sourceName} ${baseUrl}/${origFolder}/${destinationName.replace(/jp?g/i, ( match ) => { return 'original.' + match } )}`:
+            `mv ${baseUrl}/${tmpFolder}/${sourceName} ${baseUrl}/${origFolder}/${destinationName}`;
 
     exec(execStr, ( err, stdout, stdin ) => {
         if( !err ){
@@ -147,7 +150,7 @@ function moveFile ( file, wasRotated, callback ) {
 
 function findFile ( file, cbToStepThrough ) {
 
-    let path = `${baseUrl}/James/${file}`;
+    let path = `${baseUrl}/${origFolder}/${file}`;
 
     access( path, fs.constants.W_OK )
         .then(( data ) => {
@@ -164,8 +167,8 @@ function findFile ( file, cbToStepThrough ) {
 
 function renameFile ( file, cbToStepThrough ) {
 
-    let from = `${baseUrl}/photoapptemp/${file}`;
-    let to = `${baseUrl}/photoapptemp/${Date.parse(new Date())}_${file}`;
+    let from = `${baseUrl}/${tmpFolder}/${file}`;
+    let to = `${baseUrl}/${tmpFolder}/${Date.parse(new Date())}_${file}`;
 
     rename(from, to)
         .then((result) => {
@@ -180,7 +183,7 @@ function renameFile ( file, cbToStepThrough ) {
 
 function getFiles () {
 
-    let path = `${baseUrl}/photoapptemp/`;
+    let path = `${baseUrl}/${tmpFolder}/`;
     return readdir(path);
 }
 
