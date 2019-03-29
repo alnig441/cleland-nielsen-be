@@ -76,7 +76,7 @@ app.use(function(err, req, res, next) {
 
 process.env.SCHEDULE ? cron.schedule(process.env.SCHEDULE, () => {
 
-  const logFile = '.schedule-log';
+  const logFile = `.schedule-log-${process.env.NODE_ENV}`;
 
   fs.writeFile(logFile, `BEGIN:\t${new Date()}`, (err) => {
     return null;

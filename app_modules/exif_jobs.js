@@ -128,7 +128,7 @@ function convertCoordinates ( data ) {
 
 function writeToLog ( message ) {
 
-    append( '.schedule-log', message )
+    append( `.schedule-log-${process.env.NODE_ENV}`, message )
         .then(() => {
             return null;
         })

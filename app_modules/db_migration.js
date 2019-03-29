@@ -68,7 +68,7 @@ const batchLoad = {
 
             photo.save()
                 .catch((err) => {
-                    append('.migration-log', `${err.message}\n`, 'utf8')
+                    append(`.migration-log-${process.env.NODE_ENV}`, `${err.message}\n`, 'utf8')
                         .catch((err) => {
                             console.log(err);
                         })
