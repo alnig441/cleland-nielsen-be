@@ -163,46 +163,53 @@ parser = {
     },
 
     parse: function(request) {
-
       let query = {};
 
       Object.keys(request).forEach((key) => {
-
             switch (key) {
                 case 'keywords':
                   let keywords = splitAndTrim(request[key]);
-                  query["meta.keywords"] = keywords;
+                  query[convert(key)] = keywords;
                   break;
                 case 'names':
                   let names = splitAndTrim(request[key]);
-                  query["meta.names"] = names;
-                  break;
-                case 'venue':
-                  query["meta.venue"] = request[key];
-                  break;
-                case 'occasion':
-                  query["meta.occasion"] = request[key];
-                  break;
-                case 'en':
-                  query["meta.event.en"] = request[key];
-                  break;
-                case 'da':
-                  query['meta.event.da'] = request[key];
+                  query[convert(key)] = names;
                   break;
                 default:
-                  return null;
+                  query[convert(key)] = request[key];
+                  break;
           }
       })
-
       return query;
     }
 
 }
 
+function convert(key) {
+  if (key == 'city' || key == 'state' || key == 'country') {
+    return `location.${key}`;
+  }
+  else if (key == 'day' || key == 'month' || key == 'year') {
+    return `date.${key}`;
+  }
+  else if (key == 'keywords' || key == 'names' || key == 'venue' || key == 'occasion') {
+    return `meta.${key}`;
+  }
+  else if (key == 'en' || key == 'da') {
+    return `meta.event.${key}`;
+  }
+  else if (key == 'fileName' || key == 'thumbnail') {
+    return `image.${key}`;
+  }
+  else {
+    return null;
+  }
+}
+
 function splitAndTrim(field) {
-    let array = [];
-    field.split(',').forEach((value) => {array.push(value.trim())});
-    return array;
+  let array = [];
+  field.split(',').forEach((value) => {array.push(value.trim())});
+  return array;
 }
 
 module.exports = parser;
