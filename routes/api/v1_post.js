@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const parser = require('../../app_modules/parser');
+const ObjectId = require('mongodb').ObjectId;
 
 const userSchema = require('../../schemas/schemas').userSchema;
 const photoSchema = require('../../schemas/schemas').photoSchema;
@@ -19,7 +20,6 @@ router.post('/UpdateById/:_id?/Photos',(req, res, next) => {
 
     function parseIncoming() {
         let result = goTo.next();
-        console.log(result);
         updatePhoto(result);
     }
 
@@ -58,6 +58,30 @@ router.post('/UpdateById/:_id?/Photos',(req, res, next) => {
 
         return;
     }
+})
+
+router.post('/Update/Photos?', (req, res, next) => {
+
+  let incoming = req.body ? req.body : req.query;
+  let _ids = [];
+
+  incoming['_ids'].forEach((id, index) => {
+    _ids.push({_id: new ObjectId(id)});
+  })
+
+  let query = parser.parse(incoming['form']);
+
+  Photo.updateMany({ $or: _ids }, query)
+    .then(result => {
+      res.format({
+        json: () => {
+          res.send(result);
+        }
+      })
+    })
+    .catch( error => {
+      res.render('error', { message: error });
+    })
 })
 
 

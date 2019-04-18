@@ -55,6 +55,7 @@ parser = {
                 }
             }
         })
+        // console.log('query p: ', query);
         return query;
     },
 
@@ -159,6 +160,41 @@ parser = {
             }
         })
         return query.length > 0 ? operator ? { $and : query } : { $or : query } : {} ;
+    },
+
+    parse: function(request) {
+
+      let query = {};
+
+      Object.keys(request).forEach((key) => {
+
+            switch (key) {
+                case 'keywords':
+                  let keywords = splitAndTrim(request[key]);
+                  query["meta.keywords"] = keywords;
+                  break;
+                case 'names':
+                  let names = splitAndTrim(request[key]);
+                  query["meta.names"] = names;
+                  break;
+                case 'venue':
+                  query["meta.venue"] = request[key];
+                  break;
+                case 'occasion':
+                  query["meta.occasion"] = request[key];
+                  break;
+                case 'en':
+                  query["meta.event.en"] = request[key];
+                  break;
+                case 'da':
+                  query['meta.event.da'] = request[key];
+                  break;
+                default:
+                  return null;
+          }
+      })
+
+      return query;
     }
 
 }
