@@ -55,132 +55,71 @@ parser = {
                 }
             }
         })
-        // console.log('query p: ', query);
         return query;
     },
 
     parseUpdateQuery: function (request) {
 
-        let query;
-
-        Object.keys(request).forEach((key) => {
-
-            console.log(key);
-
-            if (key != 'page') {
-                switch (key) {
-                    case 'city':
-                        return  query = { "location.city" : request[key] };
-                    case 'state':
-                        return  query = { "location.state" : request[key] };
-                    case 'country':
-                        return  query = { "location.country" : request[key] };
-                    case 'day':
-                        return  query = { "date.day" : parseInt(request[key]) };
-                    case 'month':
-                        return  query = { "date.month" : parseInt(request[key])};
-                    case 'year':
-                        return  query = { "date.year" : parseInt(request[key]) };
-                    case 'keywords':
-                        let keywords = splitAndTrim(request[key]);
-                        return query = { $push: {"meta.keywords": keywords }};
-                    case 'names':
-                        let names = splitAndTrim(request[key]);
-                        return  query = { $push: {"meta.names" : names }};
-                    case 'venue':
-                        return  query = { "meta.venue" : request[key] };
-                    case 'occasion':
-                        return  query = { "meta.occasion" : request[key] };
-                    case 'da':
-                        return query = { "meta.event.da" : request[key] };
-                    case 'en':
-                        return query = { "meta.event.en": request[key] };
-                    case 'fileName':
-                        return  query = { "image.fileName" : request[key] };
-                    case 'thumbnail':
-                        return  query = { "image.thumbnail" : request[key] };
-                    default:
-                        return null;
-                }
-            }
-        })
-
-        return query;
-    },
-
-
-    parseSearchQuery: function (request, operator) {
-
-        let query = [];
-
-        Object.keys(request).forEach((key) => {
-
-            if (key != 'page') {
-                switch (key) {
-                    case 'city':
-                        query.push({ "location.city" : request[key] });
-                        break;
-                    case 'state':
-                        query.push({ "location.state" : request[key] });
-                        break;
-                    case 'country':
-                        query.push({ "location.country" : request[key] });
-                        break;
-                    case 'day':
-                        query.push({ "date.day" : parseInt(request[key]) });
-                        break;
-                    case 'month':
-                        query.push({ "date.month" : parseInt(request[key])});
-                        break
-                    case 'year':
-                        query.push({ "date.year" : parseInt(request[key]) });
-                        break;
-                    case 'keywords':
-                        let keywords = splitAndTrim(request[key]);
-                        query.push({ "meta.keywords" : {$in : keywords }})
-                    case 'names':
-                        let names = splitAndTrim(request[key]);
-                        query.push({ "meta.names" : {$in : names }});
-                        break;
-                    case 'venue':
-                        query.push({"meta.venue" : request[key] });
-                        break;
-                    case 'occasion':
-                        query.push({ "meta.occasion" : request[key] });
-                        break;
-                    case 'fileName':
-                        query.push({ "image.fileName" : request[key] });
-                        break;
-                    case 'thumbnail':
-                        query.push({ "image.thumbnail" : request[key] });
-                        break;
-                    default:
-                        return null;
-                }
-            }
-        })
-        return query.length > 0 ? operator ? { $and : query } : { $or : query } : {} ;
-    },
-
-    parse: function(request) {
       let query = {};
 
       Object.keys(request).forEach((key) => {
-            switch (key) {
-                case 'keywords':
-                  let keywords = splitAndTrim(request[key]);
-                  query[convert(key)] = keywords;
-                  break;
-                case 'names':
-                  let names = splitAndTrim(request[key]);
-                  query[convert(key)] = names;
-                  break;
-                default:
-                  query[convert(key)] = request[key];
-                  break;
+        if (key != 'page') {
+          switch (key) {
+            case 'keywords':
+              let keywords = splitAndTrim(request[key]);
+              query['$push'] = {};
+              return query['$push'][convert(key)] = keywords;
+            case 'names':
+              let names = splitAndTrim(request[key]);
+              query['$push'] = {};
+              return query['$push'][convert(key)] = names;
+            default:
+              return query[convert(key)] = request[key];
           }
+        }
+      })
+
+      return query;
+    },
+
+    parse: function(request) {
+      let isSearch = request.page ? true: false;
+      let query = isSearch ? []: {};
+
+
+      Object.keys(request).forEach((key) => {
+        if (key != 'page' && key != 'doAnd') {
+          switch(key) {
+              case 'keywords':
+                let keywords = splitAndTrim(request[key]);
+                buildQueryObj(key, keywords)
+                break;
+              case 'names':
+                let names = splitAndTrim(request[key]);
+                buildQueryObj(key, names)
+                break;
+              default:
+                buildQueryObj(key);
+                break;
+          }
+        }
       })
       return query;
+
+      function buildQueryObj(key, valuesArray) {
+        if (isSearch) {
+          let obj = {};
+          valuesArray ? obj[convert(key)] = { $in : valuesArray } : obj[convert(key)] = request[key];
+          query.push(obj);
+        } else {
+          if (valuesArray) {
+            query['$push'] = {};
+            query['$push'][convert(key)] = valuesArray;
+          } else {
+            query[convert(key)] = request[key];
+          }
+        }
+      }
     }
 
 }

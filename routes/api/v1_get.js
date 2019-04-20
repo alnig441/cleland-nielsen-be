@@ -36,7 +36,7 @@ router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 router.get('/Search/Photos?', (req, res, next) => {
 
     let options = { page: parseInt(req.query.page) || undefined , limit: parseInt(process.env.LIMIT), sort: { created: 1 } };
-    let query = parser.parseSearchQuery(req.query, req.query.doAnd);
+    let query = req.query.doAnd ? { $and: parser.parse(req.query)}  : { $or: parser.parse(req.query) };
 
     Photo.paginate( query , options )
         .then((result) => {
