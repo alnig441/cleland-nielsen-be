@@ -14,50 +14,70 @@ router.post('/UpdateById/:_id?/Photos',(req, res, next) => {
 
     let incoming = req.body ? req.body : req.query;
 
-    let goTo = stepThrough(incoming);
+    query = parser.parse(incoming);
 
-    parseIncoming();
+    console.log('query single: ', query)
 
-    function parseIncoming() {
-        let result = goTo.next();
-        updatePhoto(result);
-    }
-
-    function updatePhoto ( field ) {
-        Photo.findOneAndUpdate({_id: req.params._id}, field.value)
-            .then(( photo ) => {
-                if ( !field.done ) {
-                    parseIncoming();
-                } else {
-                  if ( req.accepts().includes('*/*') || req.accepts().includes('text/html') ) {
-                    res.render('results', {docs: photo, endpoint: 'photos'})
-                  } else {
-                    res.format({
-                      json: () => {
-                        res.send(photo);
-                      }
-                    })
-                  }
-                }
-            })
-            .catch(( error ) => {
-                res.render('error', { message: error });
-            })
-    }
-
-    function* stepThrough ( object_in ) {
-        let i = 0;
-        let keys = Object.keys( object_in );
-
-        while(i <= keys.length -1) {
-            i++;
-            let object_out = {};
-            object_out[keys[i - 1]] = object_in[keys[i - 1]];
-            yield parser.parseUpdateQuery(object_out);
+    Photo.updateOne({ _id: req.params._id }, query)
+      .then(result => {
+        if (req.accepts().includes('*/*') || req.accepts().includes('text/html')) {
+          res.render('results', { docs: result, endpoint: 'photos' })
+        } else {
+          res.format({
+            json: () => {
+              res.send(result);
+            }
+          })
         }
+      })
+      .catch(error => {
+        res.render('error: ', { message: error })
+      })
 
-        return;
-    }
+    // let goTo = stepThrough(incoming);
+    //
+    // parseIncoming();
+    //
+    // function parseIncoming() {
+    //     let result = goTo.next();
+    //     updatePhoto(result);
+    // }
+    //
+    // function updatePhoto ( field ) {
+    //     Photo.findOneAndUpdate({_id: req.params._id}, field.value)
+    //         .then(( photo ) => {
+    //             if ( !field.done ) {
+    //                 parseIncoming();
+    //             } else {
+    //               if ( req.accepts().includes('*/*') || req.accepts().includes('text/html') ) {
+    //                 res.render('results', {docs: photo, endpoint: 'photos'})
+    //               } else {
+    //                 res.format({
+    //                   json: () => {
+    //                     res.send(photo);
+    //                   }
+    //                 })
+    //               }
+    //             }
+    //         })
+    //         .catch(( error ) => {
+    //             res.render('error', { message: error });
+    //         })
+    // }
+    //
+    // function* stepThrough ( object_in ) {
+    //     let i = 0;
+    //     let keys = Object.keys( object_in );
+    //
+    //     while(i <= keys.length -1) {
+    //         i++;
+    //         let object_out = {};
+    //         object_out[keys[i - 1]] = object_in[keys[i - 1]];
+    //         yield parser.parseUpdateQuery(object_out);
+    //     }
+    //
+    //     return;
+    // }
 })
 
 router.post('/Update/Photos?', (req, res, next) => {

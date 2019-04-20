@@ -58,34 +58,24 @@ parser = {
         return query;
     },
 
-    parseUpdateQuery: function (request) {
-
-      let query = {};
-
-      Object.keys(request).forEach((key) => {
-        if (key != 'page') {
-          switch (key) {
-            case 'keywords':
-              let keywords = splitAndTrim(request[key]);
-              query['$push'] = {};
-              return query['$push'][convert(key)] = keywords;
-            case 'names':
-              let names = splitAndTrim(request[key]);
-              query['$push'] = {};
-              return query['$push'][convert(key)] = names;
-            default:
-              return query[convert(key)] = request[key];
-          }
-        }
-      })
-
-      return query;
-    },
-
     parse: function(request) {
       let isSearch = request.page ? true: false;
       let query = isSearch ? []: {};
 
+      function buildQueryObj(key, valuesArray) {
+        if (isSearch) {
+          let obj = {};
+          valuesArray ? obj[convert(key)] = { $in : valuesArray } : obj[convert(key)] = request[key];
+          query.push(obj);
+        } else {
+          if (valuesArray) {
+            query['$push'] = {};
+            query['$push'][convert(key)] = valuesArray;
+          } else {
+            query[convert(key)] = request[key];
+          }
+        }
+      }
 
       Object.keys(request).forEach((key) => {
         if (key != 'page' && key != 'doAnd') {
@@ -105,21 +95,6 @@ parser = {
         }
       })
       return query;
-
-      function buildQueryObj(key, valuesArray) {
-        if (isSearch) {
-          let obj = {};
-          valuesArray ? obj[convert(key)] = { $in : valuesArray } : obj[convert(key)] = request[key];
-          query.push(obj);
-        } else {
-          if (valuesArray) {
-            query['$push'] = {};
-            query['$push'][convert(key)] = valuesArray;
-          } else {
-            query[convert(key)] = request[key];
-          }
-        }
-      }
     }
 
 }
