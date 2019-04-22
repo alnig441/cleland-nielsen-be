@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const paginate = require('mongoose-paginate');
-const parser = require('../../app_modules/parser');
+const ModelParser = require('../../app_modules/model-parser');
+// const parser = require('../../app_modules/parser');
 
 const userSchema = require('../../schemas/schemas').userSchema;
 const photoSchema = require('../../schemas/schemas').photoSchema;
@@ -10,6 +11,7 @@ photoSchema.plugin(paginate);
 
 const Photo = mongoose.model('Photo', photoSchema);
 const User = mongoose.model('User', userSchema);
+const PhotoRequest = new ModelParser(Object.keys(photoSchema.paths));
 
 router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 
@@ -36,7 +38,7 @@ router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 router.get('/Search/Photos?', (req, res, next) => {
 
     let options = { page: parseInt(req.query.page) || undefined , limit: parseInt(process.env.LIMIT), sort: { created: 1 } };
-    let query = req.query.doAnd ? { $and: parser.parse(req.query)}  : { $or: parser.parse(req.query) };
+    let query = req.query.doAnd ? { $and: PhotoRequest.parse(req.query)}  : { $or: PhotoRequest.parse(req.query) };
 
     Photo.paginate( query , options )
         .then((result) => {
