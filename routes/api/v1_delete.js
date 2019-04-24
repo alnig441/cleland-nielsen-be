@@ -1,13 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const parser = require('../../app_modules/parser');
 
 const userSchema = require('../../schemas/schemas').userSchema;
 const photoSchema = require('../../schemas/schemas').photoSchema;
 
 const Photo = mongoose.model('Photo', photoSchema);
-const User = mongoose.model('User', userSchema);
 
 router.delete('/RemoveById/:_id?/Photos', (req, res, next) => {
 

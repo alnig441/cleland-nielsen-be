@@ -1,21 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const parser = require('../../app_modules/parser');
 const fs = require('fs');
 const readline = require('readline');
+const RequestParser = require('../../app_modules/request-parser');
 
-const userSchema = require('../../schemas/schemas').userSchema;
 const photoSchema = require('../../schemas/schemas').photoSchema;
 
+const PhotoRequest = new RequestParser(photoSchema, 'photo');
 const Photo = mongoose.model('Photo', photoSchema);
-const User = mongoose.model('User', userSchema);
 
 router.put('/Add/Photos', (req, res, next) => {
 
-    let request = parser.createDoc(req.body);
-
-    let photo = new Photo(request);
+    let photo = PhotoRequest.createDoc(req.body);
     photo.set({ created: new Date });
 
     photo.save()

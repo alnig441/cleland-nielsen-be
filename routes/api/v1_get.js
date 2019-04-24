@@ -2,16 +2,13 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const paginate = require('mongoose-paginate');
-const ModelParser = require('../../app_modules/model-parser');
-// const parser = require('../../app_modules/parser');
+const RequestParser = require('../../app_modules/request-parser');
 
-const userSchema = require('../../schemas/schemas').userSchema;
 const photoSchema = require('../../schemas/schemas').photoSchema;
 photoSchema.plugin(paginate);
 
 const Photo = mongoose.model('Photo', photoSchema);
-const User = mongoose.model('User', userSchema);
-const PhotoRequest = new ModelParser(Object.keys(photoSchema.paths));
+const PhotoRequest = new RequestParser(photoSchema, 'photo');
 
 router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 
