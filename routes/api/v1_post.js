@@ -22,7 +22,6 @@ router.post('/UpdateById/:_id?/Photos',(req, res, next) => {
       if (req.accepts().includes('*/*') || req.accepts().includes('text/html')) {
         res.render('results', { docs: result, endpoint: 'photos' })
       } else {
-        console.log('result: ', result)
         res.format({
           json: () => {
             res.send(result);
