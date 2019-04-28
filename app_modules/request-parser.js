@@ -22,13 +22,28 @@ const RequestParser = function (schema, type) {
   this.buildQueryObj = function(key, value) {
     let obj = {};
 
-    key == 'keywords' ? !this.isSearch ? !this.query['$push'] ? this.query["$push"] = {} : null : null : null ;
+    if (!this.isSearch) {
+      if (value.toString() == 'null') {
+        !this.query['$set'] ? this.query['$set'] = {} : null;
+      } else if (Array.isArray(value) && value.toString() != 'null') {
+        !this.query['$push'] ? this.query['$push'] = {} : null;
+      }
+    }
+
+    // key == 'keywords' ? !this.isSearch ? !this.query['$push'] ? this.query["$push"] = {} : null : null : null ;
 
     if (this.isSearch) {
       obj[this.getPath(key)] = Array.isArray(value) ? { $in : value } : value;
       this.query.push(obj);
     } else {
-      key == 'keywords' ? this.query['$push'][this.getPath(key)] = { $each: value} : this.query[this.getPath(key)] = value;
+      if (value.toString() == 'null') {
+        this.query['$set'][this.getPath(key)] = Array.isArray(value) ? [] : null ;
+      } else {
+        // key == 'keywords' ?
+        Array.isArray(value) ?
+          this.query['$push'][this.getPath(key)] = { $each: value} :
+          this.query[this.getPath(key)] = value ;
+      }
     }
   }
 }
@@ -47,7 +62,7 @@ RequestParser.prototype.parse = function(request) {
       }
     }
   })
-
+  console.log('query: ', this.query);
   return this.query;
 }
 
