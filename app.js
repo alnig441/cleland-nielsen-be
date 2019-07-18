@@ -117,10 +117,10 @@ process.env.SCHEDULE ? cron.schedule(process.env.SCHEDULE, () => {
         break;
       case 'location':
         writeToLog(`\nINFO:\tLocation added to ${obj.location} files`);
-        jobs.createPhotos();
+        jobs.createDocuments();
         break;
       case 'mongo':
-        writeToLog(`\nINFO:\t${obj.mongo.length} photos added to db`);
+        writeToLog(`\nINFO:\t${obj.mongo.length} documents added to db`);
         removeListeners( true );
         break;
       default:

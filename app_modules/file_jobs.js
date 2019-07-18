@@ -13,7 +13,8 @@ const append = util.promisify(fs.appendFile);
 const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/WD-USB-DISK' : process.env.PHOTOS_MOUNT_POINT;
 const tmpFolder = process.env.APP_TMP_FOLDER,
       pngFolder = process.env.APP_PNG_FOLDER,
-      origFolder = process.env.APP_ORIG_FOLDER;
+      origFolder = process.env.APP_ORIG_FOLDER,
+      videoFolder = process.env.APP_VIDEO_FOLDER;
 
 const fileJobs = {
 
@@ -76,30 +77,36 @@ const fileJobs = {
 
         let pngFile = saveAs.replace( /jp?g/i, 'png');
 
-        jo.rotate(`${baseUrl}/${tmpFolder}/${fileName}`, options, ( error, buffer ) => {
-            let wasRotated = error ? false : true;
+        if (file.isPhoto) {
+          jo.rotate(`${baseUrl}/${tmpFolder}/${fileName}`, options, ( error, buffer ) => {
+              let wasRotated = error ? false : true;
 
-            if ( !error ) {
-                saveFile( buffer, saveAs )
-                    .then( () => {
-                        return null;
-                    })
-                    .catch(( error ) => {
-                        cbToJobHandler( error );
-                    })
-            }
+              if ( !error ) {
+                  saveFile( buffer, saveAs )
+                      .then( () => {
+                          return null;
+                      })
+                      .catch(( error ) => {
+                          cbToJobHandler( error );
+                      })
+              }
 
-            convertFile( buffer , pngFile)
-                .then(
-                    moveFile(file, wasRotated, ( error ) => {
-                        error ? cbToJobHandler( error ) : cbToJobHandler( null,`${file} converted and moved` );
-                    })
-                )
-                .catch(( error ) => {
-                    cbToJobHandler( error );
-                })
-        })
-
+              convertFile( buffer , pngFile)
+                  .then(
+                      moveFile(file, wasRotated, ( error ) => {
+                          error ? cbToJobHandler( error ) : cbToJobHandler( null,`${file} converted and moved` );
+                      })
+                  )
+                  .catch(( error ) => {
+                      cbToJobHandler( error );
+                  })
+          })
+        }
+        else {
+          moveFile (file, null, (error) => {
+            error ? cbToJobHandler(error) : cbToJobHandler(null, `${file} moved`);
+          })
+        }
 
     }
 
@@ -124,7 +131,7 @@ function moveFile ( file, wasRotated, callback ) {
 
     wasRotated ? writeToLog(`\nINFO:\t${file} was rotated`) : null;
 
-    let sourceName, destinationName;
+    let sourceName, destinationName, execStr;
 
     if ( typeof file == 'object') {
       sourceName = file.fileName.split(' ').join('\\ ');
@@ -133,10 +140,14 @@ function moveFile ( file, wasRotated, callback ) {
       sourceName = destinationName = file.split(' ').join('\\ ');
     }
 
-    let execStr =
-        wasRotated ?
-            `mv ${baseUrl}/${tmpFolder}/${sourceName} ${baseUrl}/${origFolder}/${destinationName.replace(/jp?g/i, ( match ) => { return 'original.' + match } )}`:
-            `mv ${baseUrl}/${tmpFolder}/${sourceName} ${baseUrl}/${origFolder}/${destinationName}`;
+    if (file.isPhoto){
+      execStr =
+          wasRotated ?
+              `mv ${baseUrl}/${tmpFolder}/${sourceName} ${baseUrl}/${origFolder}/${destinationName.replace(/jp?g/i, ( match ) => { return 'original.' + match } )}`:
+              `mv ${baseUrl}/${tmpFolder}/${sourceName} ${baseUrl}/${origFolder}/${destinationName}`;
+    } else {
+      execStr = `mv ${baseUrl}/${tmpFolder}/${sourceName} ${baseUrl}/${videoFolder}/${destinationName}`;
+    }
 
     exec(execStr, ( err, stdout, stdin ) => {
         if( !err ){

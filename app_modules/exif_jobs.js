@@ -1,13 +1,15 @@
 const fs = require('fs');
 const util = require('util');
 const append = util.promisify(fs.appendFile);
-const fastExif = require('fast-exif');
+const exif = require('simple-exiftool');
 const mongoose = require('mongoose');
 const paginate = require('mongoose-paginate');
 const photoSchema = require('../schemas/schemas').photoSchema;
+const videoSchema = require('../schemas/schemas').videoSchema;
 photoSchema.plugin(paginate);
 
 const Photo = mongoose.model('photo', photoSchema);
+const Video = mongoose.model('video', videoSchema);
 
 const baseUrl = process.env.NODE_ENV == 'development' ? `/Volumes/WD-USB-DISK/${process.env.APP_TMP_FOLDER}/` : `${process.env.PHOTOS_MOUNT_POINT}/${process.env.APP_TMP_FOLDER}/`;
 
@@ -15,115 +17,58 @@ const exifJobs = {
 
     default: function ( file, cbToJobHandler ){
 
-        fastExif.read(baseUrl + file, cbToJobHandler)
-            .then(result => {
+      exif(baseUrl + file, (error, meta) => {
+        if (meta) {
+          cbToJobHandler(null, buildDocument(meta));
+        } else {
+          writeToLog(`\nINFO:\tNo exif data for ${file}`);
+          cbToJobHandler( null, file );
+        }
 
-                if ( result ) {
-
-                    let photo = new Photo();
-                    photo.set({ 'image.fileName' : file });
-
-                    cbToJobHandler( null, extractData( result, photo ) );
-
-                } else {
-                    writeToLog(`\nINFO:\tNo exif data for ${file}`);
-                    cbToJobHandler( null, file );
-
-                }
-
-
-            })
-            .catch(err => {
-
-                cbToJobHandler( err );
-
-            })
+      })
 
     }
 
 }
 
-function convertDateTimeOriginal ( timestamp ) {
+function buildDocument(meta) {
+  let doRename = meta.FileName.match(/_[0-9]{4}\./);
+  let ext = meta.FileName.split('.')[meta.FileName.split('.').length -1];
+  let docType = meta.MIMEType.split('/')[0];
+  let date = setDate(meta.DateTimeOriginal || meta.CreateDate);
+  let fileNamePath = docType + '.fileName';
+  let result = {};
+
+  let fileName = doRename ?
+    convertTimestamp2FileName(date) + ext:
+    meta.FileName;
+
+  let document = docType == 'video' ?
+    new Video():
+    new Photo();
+
+  document.set({ created: date , [fileNamePath] : fileName } );
+
+  result.document = document;
+  result.originalNameAlternateName = { [meta.FileName] : fileName };
+
+  result.gps = meta.GPSPosition ?
+    { latitude  : meta.GPSPosition.split(' ')[0], longitude : meta.GPSPosition.split(' ')[1] }:
+    {};
+
+  return result;
+}
+
+function setDate( dateString ) {
+  let array = dateString.split(' ');
+  let date = `${array[0].replace(/:/g, '-')} ${array[1]}`
+  return new Date(date);
+}
+
+function convertTimestamp2FileName ( timestamp ) {
   timestamp = timestamp.toISOString();
-  let newFileName = timestamp.split('.')[0].replace(/t/i, ' ').replace(/:/g, '.') + '.jpg';
+  let newFileName = timestamp.split('.')[0].replace(/t/i, ' ').replace(/:/g, '.') + '.';
   return newFileName;
-}
-
-function extractData ( exifData, document ) {
-
-  // console.log('gps data: ', exifData, document.image.fileName)
-
-    let dateTimeOriginal = findExifFieldValue(exifData, 'DateTimeOriginal');
-    let result = { document: document, gps: {}, originalNameAlternateName: {} };
-    let originalNameAlternateName = { };
-    let doRename = document.image.fileName.match(/_[0-9]{4}\./);
-
-    if ( exifData.gps && exifData.gps.GPSLatitude ) {
-        result.gps = {
-            latitude    : convertCoordinates({ coordinate: exifData.gps.GPSLatitude, reference: exifData.gps.GPSLatitudeRef}),
-            longitude   : convertCoordinates({ coordinate: exifData.gps.GPSLongitude, reference: exifData.gps.GPSLongitudeRef})
-        }
-
-    }
-
-    if ( dateTimeOriginal ) {
-        document.set({ created: dateTimeOriginal })
-    }
-
-
-    if ( doRename ) {
-      let saveAs = dateTimeOriginal ? convertDateTimeOriginal(dateTimeOriginal) : undefined;
-
-      originalNameAlternateName[document.image.fileName] = dateTimeOriginal ?
-        saveAs :
-        null ;
-
-      doRename ?
-        document.set({ 'image.fileName' : saveAs }) :
-        null;
-
-      result.originalNameAlternateName = originalNameAlternateName;
-    }
-
-    return document.created ? result: null;
-
-}
-
-function findExifFieldValue(exifData, field) {
-  let keys = Object.keys(exifData);
-  let value;
-
-  if ( keys.length > 0 ) {
-    keys.forEach((elem) => {
-      exifData[elem].hasOwnProperty(field) ? value = exifData[elem][field] : null;
-    })
-  } else {
-    exifData.hasOwnProperty(field) ? value = exifData[field] : null;
-  }
-
-  return value;
-}
-
-function convertCoordinates ( data ) {
-
-    let isNegative = data.reference.toLowerCase() == 's' || data.reference.toLowerCase() == 'w';
-    let conversion;
-
-    data.coordinate.forEach( ( elem, ind ) => {
-        switch ( ind ) {
-            case 0:
-                conversion = elem;
-                break;
-            case 1:
-                conversion += elem/60;
-                break;
-            case 2:
-                conversion += elem/3600;
-                break;
-        }
-    })
-
-    return conversion = isNegative ? '-' + conversion.toString(): conversion.toString() ;
 }
 
 function writeToLog ( message ) {

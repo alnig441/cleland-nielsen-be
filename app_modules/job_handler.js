@@ -85,8 +85,9 @@ jobHandler.prototype.detectNewPhotos = function () {
 jobHandler.prototype.convertAndMovePhotos = function ( files ) {
 
     this.exifAdded.forEach( ( element, index, array ) => {
+      let isPhoto = element.document._doc.hasOwnProperty('image');
       Object.values(element.originalNameAlternateName).length > 0 ?
-        this.files.push({ fileName: Object.keys(element.originalNameAlternateName)[0], saveAs: Object.values(element.originalNameAlternateName)[0]}) :
+        this.files.push({ fileName: Object.keys(element.originalNameAlternateName)[0], saveAs: Object.values(element.originalNameAlternateName)[0], isPhoto : isPhoto }) :
         this.files.push( element.document.image.fileName );
 
       if ( index == array.length -1 ){
@@ -134,15 +135,15 @@ jobHandler.prototype.photoExists = function ( file, cb ) {
       })
 }
 
-jobHandler.prototype.createPhotos = function () {
+jobHandler.prototype.createDocuments = function () {
 
-    this.mongoHandler.createPhotos( this.exifAndLocationAdded )
-        .then(( result ) => {
-            this.emit( 'done', { mongo: result });
-        })
-        .catch(( error ) => {
-            this.emit( 'error', error.errmsg );
-        })
+  this.mongoHandler.createDocuments( this.exifAndLocationAdded, (error, result) => {
+    if (error) {
+      let msg = error.errmsg || error;
+      this.emit( 'error', msg );
+    }
+    else this.emit('done', {mongo: result });
+  })
 }
 
 jobHandler.prototype.clearRegisters = function () {

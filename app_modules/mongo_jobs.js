@@ -1,10 +1,32 @@
 const mongoose = require('mongoose');
+const util = require('util');
 const photoSchema = require('../schemas/schemas').photoSchema;
-const Photo = mongoose.model('Photo', photoSchema);
+const videoSchema = require('../schemas/schemas').videoSchema;
+const Photo = mongoose.model('photo', photoSchema);
+const Video = mongoose.model('video', videoSchema);
 
-const createPhotos = function ( photosArray ) {
+const createDocuments = function ( documentsArray, cbToJobHandler ) {
 
-    return Photo.create( photosArray );
+  let photos = [], videos = [];
+  documentsArray.forEach(doc => {
+    doc instanceof Video ?
+      videos.push(doc) :
+      photos.push(doc);
+  })
+
+  Photo.create(photos)
+    .then(savedImgs => {
+      Video.create(videos)
+        .then(savedVids => {
+          cbToJobHandler(null, savedVids.concat(savedImgs));
+        })
+        .catch(error => {
+          cbToJobHandler(error);
+        })
+    })
+    .catch(error => {
+      cbToJobHandler(error);
+    })
 
 }
 
@@ -23,7 +45,7 @@ const photoExistsInDB = function ( photo ) {
 }
 
 const mongoJobs = {
-  createPhotos: createPhotos,
+  createDocuments: createDocuments,
   photoExistsInDB: photoExistsInDB
 }
 
