@@ -13,6 +13,7 @@ let jobs = new jobHandler();
 const userAuth = require('./routes/authenticate');
 const index = require('./routes/index');
 const v1_get = require('./routes/api/v1_get');
+const v1_videos_get = require('./routes/api/v1_videos_get');
 const v1_delete = require('./routes/api/v1_delete');
 const v1_put = require('./routes/api/v1_put');
 const v1_post = require('./routes/api/v1_post');
@@ -45,7 +46,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.all('*', userAuth);
 app.use('/', index);
-app.use(`/${process.env.LATEST_API_VERSION}`, [v1_get, v1_put, v1_post, v1_delete]); //latest api
+app.use(`/${process.env.LATEST_API_VERSION}`, [v1_get, v1_videos_get, v1_put, v1_post, v1_delete]); //latest api
 
 //catch all '/api' and redirect to appropriate version
 app.use(/\/api/i, (req, res) => {
