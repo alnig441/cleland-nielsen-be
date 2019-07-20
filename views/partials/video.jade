@@ -1,0 +1,24 @@
+- var result= docs.hasOwnProperty('_doc') ? [docs]: docs.docs
+
+each document,index in result
+    span.model= '<'+ endpoint + 'Model>'
+       each fieldVal, field in document._doc
+           span.level1= '<'+ field +'>'
+                - if (typeof fieldVal == 'object' && field != '_id' && !Array.isArray(fieldVal) && !(fieldVal instanceof Date))
+                 each fieldVal2, field2 in fieldVal
+                     span.level2= '<'+ field2 +'>'
+                         - if (typeof fieldVal2 == 'object' && !Array.isArray(fieldVal2) && !(fieldVal instanceof Date))
+                              each fieldVal3, field3 in fieldVal2
+                                 span.level3= '<'+ field3 +'>'
+                                     - if (typeof fieldVal2 == 'object' && !Array.isArray(fieldVal2) && !(fieldVal instanceof Date))
+                                          p= fieldVal3
+                                     - else
+                                      p= fieldVal3
+                                     span.level3.closing-tag= '</'+ field3 +'>'
+                         - else
+                          p= fieldVal2
+                         span.level2.closing-tag= '</'+ field2 + '>'
+                - else
+                 p= fieldVal
+                span.level1.closing-tag= '</'+ field +'>'
+    span.model= '</'+ endpoint + 'Model>'

@@ -9,6 +9,7 @@ block content
             div.results
                 span.modelResults= '<'+ endpoint +'ModelResults>'
                     include ./partials/photo.jade
+                    include ./partials/video.jade
                 - if (docs.total && docs.total.toString() != 'NaN')
                     span.model= '<total>'
                         p= docs.total
@@ -33,3 +34,4 @@ block content
                 - else
                     p= 'no documents found!'
                 include ./partials/photo.jade
+                include ./partials/video.jade
