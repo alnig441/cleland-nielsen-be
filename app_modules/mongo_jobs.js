@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const util = require('util');
-const photoSchema = require('../schemas/schemas').photoSchema;
-const videoSchema = require('../schemas/schemas').videoSchema;
+const photoSchema = require('../schemas/photoSchema');
+const videoSchema = require('../schemas/videoSchema');
 const Photo = mongoose.model('Photo', photoSchema);
 const Video = mongoose.model('Video', videoSchema);
 

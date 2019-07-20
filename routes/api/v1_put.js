@@ -5,9 +5,9 @@ const fs = require('fs');
 const readline = require('readline');
 const RequestParser = require('../../app_modules/request-parser');
 
-const photoSchema = require('../../schemas/schemas').photoSchema;
+const photoSchema = require('../../schemas/photoSchema');
 
-const PhotoRequest = new RequestParser(photoSchema, 'photo');
+const PhotoRequest = new RequestParser(photoSchema, 'Photo');
 const Photo = mongoose.model('Photo', photoSchema);
 
 router.put('/Add/Photos', (req, res, next) => {

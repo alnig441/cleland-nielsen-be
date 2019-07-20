@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 
-const userSchema = require('../../schemas/schemas').userSchema;
-const photoSchema = require('../../schemas/schemas').photoSchema;
+const userSchema = require('../../schemas/userSchema');
+const photoSchema = require('../../schemas/photoSchema');
 
 const Photo = mongoose.model('Photo', photoSchema);
 

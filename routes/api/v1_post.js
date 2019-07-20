@@ -3,13 +3,13 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const ObjectId = require('mongodb').ObjectId;
 const RequestParser = require('../../app_modules/request-parser');
-const userSchema = require('../../schemas/schemas').userSchema;
-const photoSchema = require('../../schemas/schemas').photoSchema;
+const userSchema = require('../../schemas/userSchema');
+const photoSchema = require('../../schemas/photoSchema');
 
 const Photo = mongoose.model('Photo', photoSchema);
 const User = mongoose.model('User', userSchema);
 
-const PhotoRequest = new RequestParser(photoSchema, 'photo');
+const PhotoRequest = new RequestParser(photoSchema, 'Photo');
 
 router.post('/UpdateById/:_id?/Photos',(req, res, next) => {
 

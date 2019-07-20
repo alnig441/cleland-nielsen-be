@@ -4,7 +4,7 @@ const readline = require('readline');
 const mongoose = require('mongoose');
 const append = util.promisify(fs.appendFile);
 
-const photoSchema = require('../schemas/schemas').photoSchema;
+const photoSchema = require('../schemas/photoSchema');
 
 const Photo = mongoose.model('Photo', photoSchema);
 

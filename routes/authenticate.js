@@ -3,7 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const auth = require('basic-auth');
 
-const userSchema = require('../schemas/schemas').userSchema;
+const userSchema = require('../schemas/userSchema');
 
 const User = mongoose.model('User', userSchema);
 

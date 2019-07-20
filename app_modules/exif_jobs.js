@@ -3,10 +3,8 @@ const util = require('util');
 const append = util.promisify(fs.appendFile);
 const exif = require('simple-exiftool');
 const mongoose = require('mongoose');
-const paginate = require('mongoose-paginate');
-const photoSchema = require('../schemas/schemas').photoSchema;
-const videoSchema = require('../schemas/schemas').videoSchema;
-photoSchema.plugin(paginate);
+const photoSchema = require('../schemas/photoSchema');
+const videoSchema = require('../schemas/videoSchema');
 
 const Photo = mongoose.model('Photo', photoSchema);
 const Video = mongoose.model('Video', videoSchema);

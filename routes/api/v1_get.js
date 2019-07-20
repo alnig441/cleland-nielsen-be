@@ -1,14 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const paginate = require('mongoose-paginate');
 const RequestParser = require('../../app_modules/request-parser');
 
-const photoSchema = require('../../schemas/schemas').photoSchema;
-photoSchema.plugin(paginate);
+const photoSchema = require('../../schemas/photoSchema');
 
 const Photo = mongoose.model('Photo', photoSchema);
-const PhotoRequest = new RequestParser(photoSchema, 'photo');
+const PhotoRequest = new RequestParser(photoSchema, 'Photo');
 
 router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 
@@ -50,7 +48,7 @@ router.get('/Search/Photos?', (req, res, next) => {
           }
         })
         .catch((error) => {
-            res.render('results', { result: error })
+            res.render('error', { result: error })
         })
 
 })

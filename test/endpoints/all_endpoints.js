@@ -37,7 +37,7 @@ describe('Photo: models', function () {
 
             Photo.create( photoModel, function ( err, createdModel ) {
                 _id = createdModel._id;
-                
+
                 should.not.exist( err );
 
                 createdModel.created.should.be.an.instanceOf(Date);
@@ -111,7 +111,7 @@ describe('Photo: models', function () {
             })
         });
     })
-    
+
     describe('#get() by id', function () {
         it('should get a single Photo by id', function ( done ) {
 
