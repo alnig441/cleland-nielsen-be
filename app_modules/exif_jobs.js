@@ -8,8 +8,8 @@ const photoSchema = require('../schemas/schemas').photoSchema;
 const videoSchema = require('../schemas/schemas').videoSchema;
 photoSchema.plugin(paginate);
 
-const Photo = mongoose.model('photo', photoSchema);
-const Video = mongoose.model('video', videoSchema);
+const Photo = mongoose.model('Photo', photoSchema);
+const Video = mongoose.model('Video', videoSchema);
 
 const baseUrl = process.env.NODE_ENV == 'development' ? `/Volumes/WD-USB-DISK/${process.env.APP_TMP_FOLDER}/` : `${process.env.PHOTOS_MOUNT_POINT}/${process.env.APP_TMP_FOLDER}/`;
 

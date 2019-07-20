@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const util = require('util');
 const photoSchema = require('../schemas/schemas').photoSchema;
 const videoSchema = require('../schemas/schemas').videoSchema;
-const Photo = mongoose.model('photo', photoSchema);
-const Video = mongoose.model('video', videoSchema);
+const Photo = mongoose.model('Photo', photoSchema);
+const Video = mongoose.model('Video', videoSchema);
 
 const createDocuments = function ( documentsArray, cbToJobHandler ) {
 
