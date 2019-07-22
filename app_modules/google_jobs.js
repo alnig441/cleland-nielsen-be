@@ -23,7 +23,11 @@ const googleJobs = {
                     null;
 
             if ( err ) {
+              if (err = 'ZERO_RESULTS') {
+                cbToJobHandler( null, res);
+              } else {
                 cbToJobHandler( err );
+              }
             }
             if ( !res && api ) {
                 consumeApi( api, data.document, doGetApiData );
