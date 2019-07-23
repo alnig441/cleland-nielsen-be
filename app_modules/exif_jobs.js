@@ -20,7 +20,7 @@ const exifJobs = {
           cbToJobHandler(null, buildDocument(meta));
         } else {
           writeToLog(`\nINFO:\tNo exif data for ${file}`);
-          cbToJobHandler( null, file );
+          cbToJobHandler( null, {document: file, gps: {}} );
         }
 
       })
@@ -50,7 +50,7 @@ function buildDocument(meta) {
   result.document = document;
   result.originalNameAlternateName = { [meta.FileName] : fileName };
 
-  result.gps = meta.GPSPosition ?
+  result.gps = meta.GPSPosition && meta.GPSPosition != '0 0' ?
     { latitude  : meta.GPSPosition.split(' ')[0], longitude : meta.GPSPosition.split(' ')[1] }:
     {};
 

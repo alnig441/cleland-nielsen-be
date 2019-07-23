@@ -18,7 +18,9 @@ const createDocuments = function ( documentsArray, cbToJobHandler ) {
     .then(savedImgs => {
       Video.create(videos)
         .then(savedVids => {
-          cbToJobHandler(null, savedVids.concat(savedImgs));
+          if (savedImgs && savedVids) cbToJobHandler(null, savedVids.concat(savedImgs))
+          else if (savedImgs) cbToJobHandler(null, savedImgs);
+          else if (savedVids) cbToJobHandler(null, savedVids);
         })
         .catch(error => {
           cbToJobHandler(error);

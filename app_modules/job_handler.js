@@ -14,6 +14,7 @@ const jobHandler = function() {
     this.files = [];
     this.exifAdded = [];
     this.exifAndLocationAdded = [];
+    this.noLocationAdded = [];
     this.infoType;
 
     this.detect = fileHandler.detectPhotos;
@@ -25,11 +26,15 @@ const jobHandler = function() {
 
     this.buildDocument = ( error, document ) => {
 
-      document.hasOwnProperty('gps') ?
-        Object.values(document.gps).length > 0 ?
-          this.exifAdded.push(document):
-          null:
-        this.exifAndLocationAdded.push(document);
+      if (document) {
+        document.hasOwnProperty('gps') ?
+          Object.values(document.gps).length > 0 ?
+            this.exifAdded.push(document):
+            typeof document.document == 'string' ?
+              null:
+              this.noLocationAdded.push(document):
+          this.exifAndLocationAdded.push(document);
+      }
 
       error ? this.emit( 'error', error ) : this.procede();
 
@@ -84,7 +89,9 @@ jobHandler.prototype.detectNewPhotos = function () {
 
 jobHandler.prototype.convertAndMovePhotos = function ( files ) {
 
-    this.exifAdded.forEach( ( element, index, array ) => {
+  let concatenatedArray = this.exifAdded.concat(this.noLocationAdded);
+
+    concatenatedArray.forEach( ( element, index, array ) => {
       let isPhoto = element.document._doc.hasOwnProperty('image');
       Object.values(element.originalNameAlternateName).length > 0 ?
         this.files.push({ fileName: Object.keys(element.originalNameAlternateName)[0], saveAs: Object.values(element.originalNameAlternateName)[0], isPhoto : isPhoto }) :
@@ -137,13 +144,22 @@ jobHandler.prototype.photoExists = function ( file, cb ) {
 
 jobHandler.prototype.createDocuments = function () {
 
-  this.mongoHandler.createDocuments( this.exifAndLocationAdded, (error, result) => {
-    if (error) {
-      let msg = error.errmsg || error;
-      this.emit( 'error', msg );
+  this.noLocationAdded.forEach((element, index, array) => {
+    if (element.document) {
+      this.exifAndLocationAdded.push(element.document);
     }
-    else this.emit('done', {mongo: result });
+    if (index == array.length -1){
+      this.mongoHandler.createDocuments( this.exifAndLocationAdded, (error, result) => {
+        if (error) {
+          let msg = error.errmsg || error;
+          this.emit( 'error', msg );
+        }
+        else this.emit('done', {mongo: result });
+      })
+    }
+
   })
+
 }
 
 jobHandler.prototype.clearRegisters = function () {
