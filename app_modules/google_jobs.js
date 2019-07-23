@@ -17,17 +17,15 @@ const googleJobs = {
         Object.values(data.gps).length > 0 ? doGetApiData() : cbToJobHandler( null, data.document ) ;
 
         function doGetApiData ( err, res ) {
+
+
             let api =
                 URIs.length > 0 ?
                     Object.values(URIs.shift())[0] :
                     null;
 
             if ( err ) {
-              if (err = 'ZERO_RESULTS') {
-                cbToJobHandler( null, res);
-              } else {
                 cbToJobHandler( err );
-              }
             }
             if ( !res && api ) {
                 consumeApi( api, data.document, doGetApiData );
@@ -51,7 +49,7 @@ function consumeApi ( uri, document, cbToDoGetApi ) {
     https.get( uri, ( result ) => {
 
         result.on( 'error', ( err ) => {
-            cbToDoGetApi(err);
+          cbToDoGetApi(err);
         })
 
         result.on( 'data', ( data ) => {
