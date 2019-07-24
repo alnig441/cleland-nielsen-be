@@ -10,7 +10,7 @@ const access = util.promisify(fs.access);
 const rename = util.promisify(fs.rename);
 const append = util.promisify(fs.appendFile);
 
-const baseUrl = process.env.NODE_ENV == 'development' ? '/Volumes/WD-USB-DISK' : process.env.PHOTOS_MOUNT_POINT;
+const baseUrl = process.env.MEDIA_MOUNT_POINT;
 const tmpFolder = process.env.APP_TMP_FOLDER,
       pngFolder = process.env.APP_PNG_FOLDER,
       origFolder = process.env.APP_ORIG_FOLDER,
