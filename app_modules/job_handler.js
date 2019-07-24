@@ -66,10 +66,21 @@ const jobHandler = function() {
         if ( error ) {
             this.emit( 'error', error );
         }
-
         this.files.length > 0 ? this.convertAndMove( this.files.shift(), this.convertMoveNext ) : this.emit( 'done', { converted: true }) ;
 
     }
+
+    this.createCallBack = (error, result) => {
+
+      if(error) {
+        let msg = error.msg || error;
+        this.emit('error', msg);
+      } else {
+        this.emit('done', {mongo: result})
+      }
+
+    }
+
 
     return this;
 }
@@ -144,21 +155,18 @@ jobHandler.prototype.photoExists = function ( file, cb ) {
 
 jobHandler.prototype.createDocuments = function () {
 
-  this.noLocationAdded.forEach((element, index, array) => {
-    if (element.document) {
-      this.exifAndLocationAdded.push(element.document);
-    }
-    if (index == array.length -1){
-      this.mongoHandler.createDocuments( this.exifAndLocationAdded, (error, result) => {
-        if (error) {
-          let msg = error.errmsg || error;
-          this.emit( 'error', msg );
+  if (this.noLocationAdded.length == 0) {
+    this.mongoHandler.createDocuments(this.exifAndLocationAdded, this.createCallBack);
+  } else {
+    this.noLocationAdded.forEach((element, index, array) => {
+      if (element.document){
+        this.exifAndLocationAdded.push(element.document);
+        if (index == array.length - 1) {
+          this.mongoHandler.createDocuments(this.exifAndLocationAdded, this.createCallBack);
         }
-        else this.emit('done', {mongo: result });
-      })
-    }
-
-  })
+      }
+    })
+  }
 
 }
 
