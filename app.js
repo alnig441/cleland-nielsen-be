@@ -42,6 +42,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('media', express.static(process.env.MEDIA_MOUNT_POINT));
 
 app.all('*', userAuth);
 app.use('/', index);
