@@ -9,8 +9,6 @@ describe('App_modules parser', function () {
 
             let result = parser.parseSearchQuery({ city: 'Vandel', day: 12, venue : 'none' , en: 'test', names: 'superman'}, false)
 
-            console.log(result);
-
             result.should.be.an.instanceOf(Object);
             result.should.have.keys(['$or']);
             result['$or'].should.be.an.instanceOf(Array);

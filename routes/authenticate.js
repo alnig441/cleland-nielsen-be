@@ -19,7 +19,6 @@ router.get(/^\//i, (req, res, next) => {
     } else {
         User.findOne({ userId: credentials.name, password: credentials.pass })
             .then((user)=> {
-                console.log(`${user.userId} authenticated succesfully`);
                 return next(null, user);
             })
             .catch((error) => {

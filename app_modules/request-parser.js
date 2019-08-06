@@ -30,8 +30,6 @@ const RequestParser = function (schema, type) {
       }
     }
 
-    // key == 'keywords' ? !this.isSearch ? !this.query['$push'] ? this.query["$push"] = {} : null : null : null ;
-
     if (this.isSearch) {
       obj[this.getPath(key)] = Array.isArray(value) ? { $in : value } : value;
       this.query.push(obj);
@@ -39,7 +37,6 @@ const RequestParser = function (schema, type) {
       if (value.toString() == 'null') {
         this.query['$set'][this.getPath(key)] = Array.isArray(value) ? [] : null ;
       } else {
-        // key == 'keywords' ?
         Array.isArray(value) ?
           this.query['$push'][this.getPath(key)] = { $each: value} :
           this.query[this.getPath(key)] = value ;
@@ -62,7 +59,6 @@ RequestParser.prototype.parse = function(request) {
       }
     }
   })
-  console.log('query: ', this.query);
   return this.query;
 }
 

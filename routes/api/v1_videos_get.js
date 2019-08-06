@@ -42,7 +42,6 @@ router.get('/Search/Videos?', (req, res, next) => {
   Video.paginate(query, options)
     .then(result => {
       if (req.accepts().includes('*/*') || req.accepts().includes('text/html')) {
-        console.log('result: ', res);
         res.render('results', {docs : result, endpoint  : 'videos'});
       } else {
         res.format({
