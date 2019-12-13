@@ -17,7 +17,7 @@ router.put('/Add/Photos', (req, res, next) => {
 
     photo.save()
         .then((result) => {
-          if ( req.accepts().includes('*/*') || req.accepts().includes('text/html') ) {
+          if ( !req.accepts().includes("application/json") ) {
             res.render('results', {docs: result, endpoint: 'photos', method: 'added'})
           } else {
             res.format({
@@ -39,7 +39,7 @@ router.put('/Create/Photos', (req, res, next) => {
 
     Photo.create(photosArray)
         .then((result) => {
-          if ( req.accepts().includes('*/*') || req.accepts().includes('text/html') ) {
+          if ( !req.accepts().includes("application/json") ) {
             res.render('results', {docs: result, endpoint: 'photos', method: 'added'})
           } else {
             res.format({

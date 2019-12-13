@@ -16,7 +16,7 @@ router.get('/SearchById/:_id?/Videos', (req, res, next) => {
 
     Video.paginate(query)
       .then(result => {
-        if (req.accepts().includes('*/*') || req.accepts().includes('text/html')) {
+        if (!req.accepts().includes("application/json")) {
           res.render('results', {docs: result, endpoint: 'videos'})
         } else {
           res.format({
@@ -33,6 +33,8 @@ router.get('/SearchById/:_id?/Videos', (req, res, next) => {
 })
 
 router.get('/Search/Videos?', (req, res, next) => {
+  
+console.log('videos ');
 
    let options = {page : parseInt(req.query.page) || undefined, limit : 20, sort : {created : 1}};
    let query = req.query.doAnd ?
@@ -41,7 +43,8 @@ router.get('/Search/Videos?', (req, res, next) => {
 
   Video.paginate(query, options)
     .then(result => {
-      if (req.accepts().includes('*/*') || req.accepts().includes('text/html')) {
+      if (!req.accepts().includes('application/json')) {
+      // if (!req.accepts().includes("application/json")) {
         res.render('results', {docs : result, endpoint  : 'videos'});
       } else {
         res.format({
