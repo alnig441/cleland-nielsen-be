@@ -31,8 +31,9 @@ router.get('/SearchById/:_id?/Photos', (req, res, next) => {
 })
 
 router.get('/Search/Photos?', (req, res, next) => {
+    let limit = isNaN(parseInt(req.query.page)) ? new Number(0) : parseInt(process.env.LIMIT);
 
-    let options = { page: parseInt(req.query.page) || undefined , limit: parseInt(process.env.LIMIT), sort: { created: 1 } };
+    let options = { page: parseInt(req.query.page) || undefined , limit: limit, sort: { created: 1 } };
     let query = req.query.doAnd ? { $and: PhotoRequest.parse(req.query)}  : { $or: PhotoRequest.parse(req.query) };
 
     Photo.paginate( query , options )
